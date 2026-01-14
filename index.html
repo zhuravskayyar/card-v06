@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Steampunk Menu</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" />
+
+  <!-- Combined styles -->
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+ 
+<div class="auth-overlay hidden" id="authOverlay">
+<div class="auth-box">
+<h1 class="auth-title">⚙️ cardastika</h1>
+<p class="auth-subtitle">Стімпанк картова гра</p>
+<div class="auth-tabs">
+<div class="auth-tab active" data-tab="login">Вхід</div>
+<div class="auth-tab" data-tab="register">Реєстрація</div>
+</div>
+<!-- Login Form -->
+<form class="auth-form active" id="loginForm">
+<div class="form-group">
+<label class="form-label" for="loginUsername">Ім'я користувача</label>
+<input class="form-input" id="loginUsername" placeholder="Введіть ім'я" required="" type="text"/>
+</div>
+<button class="auth-btn" type="submit">Увійти</button>
+<div class="auth-error" id="loginError"></div>
+</form>
+<!-- Register Form -->
+<form class="auth-form" id="registerForm">
+<div class="form-group">
+<label class="form-label" for="registerUsername">Ім'я користувача</label>
+<input class="form-input" id="registerUsername" maxlength="20" minlength="3" placeholder="Введіть ім'я" required="" type="text"/>
+</div>
+<button class="auth-btn" type="submit">Зареєструватися</button>
+<div class="auth-error" id="registerError"></div>
+</form>
+</div>
+</div>
+<div class="phone" id="app">
+<div class="noise"></div>
+<header class="topbar">
+<div class="toprow">
+<div class="avatar">
+<div aria-hidden="true" class="portrait"></div>
+<div class="level">Рівень: <span>1</span></div>
+</div>
+<div class="meters">
+<div class="meter" title="Болти"><span>🔩</span><strong id="home-bolts">500</strong></div>
+<div class="meter" title="Шестерні"><span>⚙️</span><strong id="home-gears">0</strong></div>
+<div class="meter" title="Парові ядра"><span>✴︎</span><strong id="home-cores">0</strong></div>
+</div>
+</div>
+<!-- XP під валютою, на всю ширину -->
+<div class="top-xp">
+  <div class="top-xp-fill" id="top-xp-bar"></div>
+</div>
+</header>
+<!-- Main content container -->
+<div id="main-content">
+<!-- Bag Page -->
+<section class="page" id="page-bag">
+<div class="page-header">
+<button class="back-btn" id="bag-back-btn">← Назад</button>
+<h2 class="page-title">Сумка</h2>
+</div>
+<div class="page-content">
+<div class="cards-list" id="bag-cards-list"></div>
+</div>
+</section>
+<!-- Home Page -->
+<section class="page active" id="page-home">
+<section aria-label="Режими" class="tiles">
+<div class="tile" data-page="duels">
+<div class="rivets">
+<span class="rivet r1"></span><span class="rivet r2"></span><span class="rivet r3"></span><span class="rivet r4"></span>
+</div>
+<div aria-hidden="true" class="icon"></div>
+<div class="label">Дуелі</div>
+<div class="sub">Спроби: 10</div>
+</div>
+<div class="tile" data-page="arena">
+<div class="rivets">
+<span class="rivet r1"></span><span class="rivet r2"></span><span class="rivet r3"></span><span class="rivet r4"></span>
+</div>
+<div aria-hidden="true" class="icon"></div>
+<div class="label">Арена</div>
+<div class="sub">Бій</div>
+</div>
+<div class="tile" data-page="deck">
+<div class="rivets">
+<span class="rivet r1"></span><span class="rivet r2"></span><span class="rivet r3"></span><span class="rivet r4"></span>
+</div>
+<div aria-hidden="true" class="icon"></div>
+<div class="label">Бойова колода</div>
+<div class="sub">Сила: <span id="deck-power-home">0</span></div>
+</div>
+</section>
+<section aria-label="Меню" class="list">
+<div class="item" data-page="tasks">
+<button type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Завдання</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+<div class="item" data-page="rewards">
+<button type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Діамантові нагороди</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+<div class="item" data-page="collections">
+<button type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Колекції</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+<div class="item" data-page="bag">
+<button id="menu-bag-btn" type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Сумка</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+<div class="item" data-page="shop">
+<button type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Магазин</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+<div class="item" data-page="buy-gold">
+<button type="button">
+<span aria-hidden="true" class="bullet"></span>
+<span class="text">Купити золото</span>
+<span aria-hidden="true" class="chev"></span>
+</button>
+</div>
+</section>
+<section aria-label="Акція" class="promo">
+<div class="badge">Акція</div>
+<div class="line">Від 250 до 1250 у подарунок</div>
+<div class="sub">Останній день. Пара та механіка не чекають.</div>
+</section>
+</section>
+<!-- Duels Page -->
+<section class="page duel-arena" id="page-duels">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Дуелі</h2>
+</div>
+<div class="page-content panel">
+<div class="duel-header">
+<!-- Заголовок убран: автоматический поиск отображается без отдельного названия -->
+<!-- <button class="duel-start-btn" id="duel-start-btn">Почати дуель</button> -->
+</div>
+<div class="duel-hud">
+<div class="duel-hp duel-power"><strong>Сила колод:</strong> <span id="enemyPower">0</span> / <span id="playerPower">0</span></div>
+</div>
+<!-- HUD над рукою ворога: аватар і смуга HP -->
+<div class="enemy-status hud-status">
+<div class="avatar enemy-avatar" id="enemyAvatar">👾</div>
+<div class="hp-wrapper">
+<div class="hp-label"><strong>Ворог:</strong> <span id="enemyHpText">0/0</span></div>
+<div class="hp-bar"><div class="hp-fill" id="enemyHpBar" style="width:0%"></div></div>
+</div>
+</div>
+<div class="enemy-hand" id="enemyHand"></div>
+<div class="duel-multipliers" id="duelMultipliers"></div>
+<div class="player-hand" id="playerHand"></div>
+<!-- HUD під рукою гравця: аватар і смуга HP -->
+<div class="player-status hud-status">
+<div class="avatar player-avatar" id="playerAvatar">🙂</div>
+<div class="hp-wrapper">
+<div class="hp-label"><strong>Ви:</strong> <span id="playerHpText">0/0</span></div>
+<div class="hp-bar"><div class="hp-fill" id="playerHpBar" style="width:0%"></div></div>
+</div>
+</div>
+<div class="duel-log" id="duelLog"></div>
+</div>
+</section>
+<!-- Arena Page -->
+<section class="page" id="page-arena">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Арена</h2>
+</div>
+<div class="page-content">
+<div class="info-card">
+<div class="info-label">Поточний ранг</div>
+<div class="info-value">Золото III</div>
+</div>
+<div class="info-card">
+<div class="info-label">Рейтинг</div>
+<div class="info-value">1847</div>
+</div>
+<button class="action-btn">Увійти в арену</button>
+<div class="description">
+            Рейтингові бої за ранги. Піднімайтеся вгору за таблицею лідерів і отримуйте ексклюзивні нагороди.
+          </div>
+</div>
+</section>
+<!-- Deck Page -->
+<section class="page" id="page-deck">
+<div class="screen">
+<!-- Topbar -->
+<header class="topbar">
+<button class="back-btn" data-page="home" style="flex: 0; padding: 6px 10px; font-size: 13px;">← Назад</button>
+</header>
+<!-- Deck Header -->
+<div class="deck-header panel">
+<div class="deck-title">БОЙОВА КОЛОДА</div>
+<div class="deck-power">⚙ <span id="deck-power-value">190</span></div>
+</div>
+<div class="hint panel subtle" id="deck-hint">⬆ Поліпшуйте карти!</div>
+<!-- 3x3 Grid -->
+<section class="deck-grid" id="deckGrid">
+<!-- Карти рендеримо JavaScript -->
+</section>
+<!-- Extras Section -->
+<div class="extras-title">Додаткові карти</div>
+<section class="extras-grid">
+<div class="extra-slot panel subtle">
+<div class="slot-icon"></div>
+<div class="slot-text">Союзник</div>
+</div>
+<div class="extra-slot panel subtle">
+<div class="slot-icon"></div>
+<div class="slot-text">Гільдія</div>
+</div>
+<div class="extra-slot panel subtle">
+<div class="slot-icon"></div>
+<div class="slot-text">Артефакт</div>
+</div>
+</section>
+<div class="link-like">ⓘ Де взяти додаткові карти</div>
+<!-- Menu List -->
+<section class="menu-list panel">
+<button class="menu-row" data-page="duels">⚔ Дуелі</button>
+<button class="menu-row" data-page="arena">🏛 Арена</button>
+<button class="menu-row" data-page="shop">🛍 Магазин</button>
+</section>
+</div>
+</section>
+<!-- Tasks Page -->
+<section class="page" id="page-tasks">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Завдання</h2>
+</div>
+<div class="page-content">
+<div class="task-item">
+<div class="task-text">Виграйте 3 дуелі</div>
+<div class="task-progress">1/3</div>
+<div class="task-reward">+50 XP, 5 ⚙️</div>
+</div>
+<div class="task-item completed">
+<div class="task-text">Увійдіть у гру</div>
+<div class="task-progress">✓</div>
+<div class="task-reward">+10 XP</div>
+</div>
+<div class="task-item">
+<div class="task-text">Зберіть 100 кристалів</div>
+<div class="task-progress">67/100</div>
+<div class="task-reward">+100 XP, 20 ⚙️</div>
+</div>
+</div>
+</section>
+<!-- Rewards Page -->
+<section class="page" id="page-rewards">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Діамантові нагороди</h2>
+</div>
+<div class="page-content">
+<div class="reward-item available">
+<div class="reward-icon">💎</div>
+<div class="reward-text">Щоденна нагорода</div>
+<button class="claim-btn">Отримати</button>
+</div>
+<div class="reward-item locked">
+<div class="reward-icon">🏆</div>
+<div class="reward-text">Досягнення: 10 перемог</div>
+<div class="reward-progress">8/10</div>
+</div>
+<div class="reward-item locked">
+<div class="reward-icon">⭐</div>
+<div class="reward-text">Рангова нагорода</div>
+<div class="reward-progress">Срібло II потрібно</div>
+</div>
+</div>
+</section>
+<!-- Collections Page -->
+<section class="page" id="page-collections">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Колекції</h2>
+</div>
+<div class="page-content">
+<div class="collection-set">
+<div class="collection-set" id="fire-set">
+<div class="set-name">Вогняна стихія</div>
+<div class="set-progress" id="fire-progress">0/4 карт</div>
+<div class="set-bonus">+10% до вогняної шкоди</div>
+<div class="collection-grid" id="fire-collection"></div>
+</div>
+<div class="collection-set" id="water-set">
+<div class="set-name">Водяна стихія</div>
+<div class="set-progress" id="water-progress">0/4 карт</div>
+<div class="set-bonus">+10% до водяної шкоди</div>
+<div class="collection-grid" id="water-collection"></div>
+</div>
+<div class="collection-set" id="air-set">
+<div class="set-name">Повітряна стихія</div>
+<div class="set-progress" id="air-progress">0/4 карт</div>
+<div class="set-bonus">+10% до повітряної шкоди</div>
+<div class="collection-grid" id="air-collection"></div>
+</div>
+<div class="collection-set" id="earth-set">
+<div class="set-name">Земляна стихія</div>
+<div class="set-progress" id="earth-progress">0/4 карт</div>
+<div class="set-bonus">+10% до земляної шкоди</div>
+<div class="collection-grid" id="earth-collection"></div>
+</div>
+</div>
+</div></section>
+<!-- Card Details Page -->
+<section class="page" id="page-card-details">
+<div class="page-header">
+<button class="back-btn" id="card-details-back">← Назад</button>
+<h2 class="page-title">Деталі карти</h2>
+</div>
+<div class="page-content">
+<!-- Main Card Display -->
+<div class="card-main-display panel" id="card-main-info">
+<!-- Рендеримо через JavaScript -->
+</div>
+<!-- Card Upgrade Scale (нова система XP) -->
+<div class="card-upgrade" id="card-upgrade-section">
+<div class="upgrade-header">
+<span id="cu-level">LV 1</span>
+<span id="cu-xp-text">0 / 20 XP</span>
+</div>
+<div class="xp-bar">
+<div class="xp-fill" id="cu-xp-fill"></div>
+</div>
+</div>
+<!-- Comparison Section -->
+<div class="card-comparison">
+<h3 class="comparison-title" id="weaker-cards-header">📊 Слабші карти тієї ж стихії</h3>
+<div class="weaker-cards" id="weaker-cards-list">
+<!-- Список слабших карт -->
+</div>
+</div>
+<!-- Action Buttons -->
+</div>
+</section>
+<!-- Shop Page -->
+<section class="page" id="page-shop">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Магічні Карти</h2>
+</div>
+<div class="page-content">
+<!-- Special Offers Section -->
+<div class="shop-section">
+<div class="shop-section-title">⭐ Набори по акції!</div>
+<div class="shop-notice">
+              Купуйте набори по спеціальній ціні! Доступно тільки раз!
+            </div>
+<div id="offers-container">
+<!-- Special offers will be rendered here -->
+</div>
+</div>
+<!-- Single Cards Section -->
+<div class="shop-section">
+<div class="shop-section-title">🃏 По одній карті</div>
+<div id="single-cards-container">
+<!-- Single card offers will be rendered here -->
+</div>
+</div>
+</div>
+</section>
+<!-- Pack Opening Modal -->
+<div class="pack-modal" id="pack-modal">
+<div class="pack-modal-content">
+<div class="pack-modal-header">
+<div class="pack-modal-title">Ви отримали:</div>
+<div class="pack-modal-subtitle">Карти додано в колекцію</div>
+</div>
+<div class="pack-rewards" id="pack-rewards">
+<!-- Rewards will be rendered here -->
+</div>
+<button class="pack-modal-btn" id="pack-modal-close">Прийняти</button>
+</div>
+</div>
+<!-- Duel Result Modal -->
+<div class="pack-modal" id="duel-result-modal">
+<div class="pack-modal-content">
+<div class="pack-modal-header">
+<div class="pack-modal-title" id="duel-result-title">Перемога!</div>
+<div class="pack-modal-subtitle" id="duel-result-subtitle">Ви отримали:</div>
+</div>
+<div class="duel-result-rewards" id="duel-result-rewards">
+<!-- Rewards displayed here -->
+</div>
+<div class="duel-result-stats-info">
+<div class="duel-wins-info" id="duel-wins-info">Побід в дуелях: 🏆 0</div>
+</div>
+<button class="pack-modal-btn duel-next-btn" id="duel-result-close">Ще дуель</button>
+<div class="duel-battle-summary">
+<div class="duel-summary-title">Підсумки бою</div>
+<div class="duel-summary-hp">
+<span>♥ <span id="duel-summary-player-hp">0</span></span>
+</div>
+<div class="duel-battle-cards" id="duel-battle-cards">
+<!-- Battle cards summary -->
+</div>
+</div>
+</div>
+</div>
+<!-- Pre-duel modal -->
+<div class="pack-modal" id="duel-pre-modal">
+<div class="pack-modal-content" style="max-width:460px; text-align:center;">
+<div class="pack-modal-header">
+<div class="pack-modal-title">Знайдено суперника</div>
+<div class="pack-modal-subtitle">Перевір силу колод і натисни «Напасти»</div>
+</div>
+<div class="preduel-body">
+<div class="preduel-row">
+<div class="preduel-label">Суперник</div>
+<div class="preduel-value" id="duel-pre-name">—</div>
+</div>
+<div class="preduel-row">
+<div class="preduel-label">Сила ворога</div>
+<div class="preduel-value" id="duel-pre-power">0</div>
+</div>
+<div class="preduel-row">
+<div class="preduel-label">Твоя сила</div>
+<div class="preduel-value" id="duel-pre-player-power">0</div>
+</div>
+</div>
+<div class="preduel-actions">
+<button class="pack-modal-btn" id="duel-pre-attack">Напасти</button>
+<button class="pack-modal-btn secondary" id="duel-pre-reroll">Шукати ще</button>
+</div>
+</div>
+</div>
+<!-- Buy Gold Page -->
+<section class="page" id="page-buy-gold">
+<div class="page-header">
+<button class="back-btn" data-page="home">← Назад</button>
+<h2 class="page-title">Купити золото</h2>
+</div>
+<div class="page-content">
+<div class="gold-pack">
+<div class="pack-amount">100 золота</div>
+<div class="pack-price">50 кристалів</div>
+<button class="exchange-btn">Обміняти</button>
+</div>
+<div class="gold-pack featured">
+<div class="pack-badge">Акція</div>
+<div class="pack-amount">500 золота</div>
+<div class="pack-price">200 кристалів</div>
+<div class="pack-bonus">+50 бонус</div>
+<button class="exchange-btn">Обміняти</button>
+</div>
+<div class="gold-pack">
+<div class="pack-amount">1000 золота</div>
+<div class="pack-price">350 кристалів</div>
+<button class="exchange-btn">Обміняти</button>
+</div>
+</div>
+</section>
+<!-- Profile Page -->
+<section class="page" id="page-profile">
+<div class="page-header">
+<h2 class="page-title">Профіль</h2>
+</div>
+<div class="page-content">
+<div class="profile-stat">
+<div class="stat-label">Рівень</div>
+<div class="stat-value" id="profile-level">1</div>
+</div>
+<div class="profile-row xp-row">
+  <span>Досвід</span>
+
+  <div class="xp-bar">
+    <div class="xp-bar-fill" id="xp-bar-fill"></div>
+  </div>
+
+  <span class="xp-value" id="xp-text">212 / 806</span>
+</div>
+<div class="profile-stat">
+<div class="stat-label">Перемог</div>
+<div class="stat-value" id="profile-wins">0</div>
+</div>
+<div class="profile-stat">
+<div class="stat-label">Поразок</div>
+<div class="stat-value" id="profile-losses">0</div>
+</div>
+<div class="profile-stat">
+<div class="stat-label">Ігор зіграно</div>
+<div class="stat-value" id="profile-games">0</div>
+</div>
+<button class="action-btn logout-btn">Вийти з акаунту</button>
+</div>
+</section>
+<!-- Guild Page -->
+<section class="page" id="page-guild">
+<div class="page-header">
+<h2 class="page-title">Гільдія</h2>
+</div>
+<div class="page-content">
+<div class="guild-status">
+<div class="status-text">Ви не в гільдії</div>
+</div>
+<button class="action-btn">Створити гільдію</button>
+<button class="action-btn secondary">Знайти гільдію</button>
+<div class="description">
+            Приєднайтеся до гільдії, щоб співпрацювати з іншими гравцями, брати участь у гільдійських подіях та отримувати особливі бонуси.
+          </div>
+</div>
+</section>
+<!-- Tasks Page -->
+<section class="page" id="page-tasks">
+  <div class="page-header">
+    <button class="back-btn" data-page="home">← Назад</button>
+    <h2 class="page-title">Завдання</h2>
+  </div>
+
+  <div class="page-content">
+    <div id="tasks-list" class="tasks-list"></div>
+  </div>
+</section>
+</div>
+<nav aria-label="Навігація" class="bottom">
+<div class="navbtn active" data-tab="home" id="nav-home">
+<div aria-hidden="true" class="ico"></div>
+<div class="t">Головна</div>
+</div>
+<div class="navbtn" data-tab="profile" id="nav-profile">
+<div aria-hidden="true" class="ico"></div>
+<div class="t">Профіль</div>
+</div>
+<div class="navbtn" data-tab="guild" id="nav-guild">
+<div aria-hidden="true" class="ico"></div>
+<div class="t">Гільдія</div>
+</div>
+</nav>
+</div>
+ Card System Scripts 
+
+
+
+
+
+
+ Duel Engine Scripts 
+
+
+ CardView global for modal rendering 
+
+
+
+  <!-- Combined scripts -->
+  <script src="./app.js" defer></script>
+  <script src="./tasks.system.js" defer></script>
+
+<!-- Duel search overlay -->
+<div class="duel-search-overlay hidden" id="duelSearchOverlay">
+  <div class="duel-search-box">
+    <div class="search-ring"></div>
+    <div class="search-text" id="duelSearchText">Пошук суперника</div>
+  </div>
+</div>
+</body>

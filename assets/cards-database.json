@@ -1,0 +1,297 @@
+{
+  "cards": [
+    {
+      "id": "card_001",
+      "name": "Вогняний драконче",
+      "element": "fire",
+      "rarity": "legend",
+      "power": 28,
+      "description": "Древній дракон, що керує полум'ям",
+      "ability": "При включенні: +2 атаки до всіх вогняних карт",
+      "cost": 7,
+      "image_icon": "dragon-fire"
+    },
+    {
+      "id": "card_002",
+      "name": "Таран води",
+      "element": "water",
+      "rarity": "legend",
+      "power": 28,
+      "description": "Першопричина всіх морів",
+      "ability": "При блокуванні: зцілити +3",
+      "cost": 7,
+      "image_icon": "wave"
+    },
+    {
+      "id": "card_003",
+      "name": "Вихор",
+      "element": "air",
+      "rarity": "epic",
+      "power": 24,
+      "description": "Ураган в персоніфікованій формі",
+      "ability": "Атаковує всіх ворогів на доці",
+      "cost": 5,
+      "image_icon": "tornado"
+    },
+    {
+      "id": "card_004",
+      "name": "Кам'яна фортеця",
+      "element": "earth",
+      "rarity": "epic",
+      "power": 22,
+      "description": "Неприступна гірська цитадель",
+      "ability": "Поглинає 4 шкоди за раунд",
+      "cost": 5,
+      "image_icon": "fortress"
+    },
+    {
+      "id": "card_005",
+      "name": "Вогняна робота",
+      "element": "fire",
+      "rarity": "rare",
+      "power": 14,
+      "description": "Механічне чудо стимпанку",
+      "ability": "При активації: +1 атаки",
+      "cost": 3,
+      "image_icon": "fire-mech"
+    },
+    {
+      "id": "card_006",
+      "name": "Льодяна вежа",
+      "element": "water",
+      "rarity": "rare",
+      "power": 19,
+      "description": "Кристалічна структура льоду",
+      "ability": "Заморожує ворога на 1 хід",
+      "cost": 4,
+      "image_icon": "ice-tower"
+    },
+    {
+      "id": "card_007",
+      "name": "Вітрильник",
+      "element": "air",
+      "rarity": "rare",
+      "power": 24,
+      "description": "Мистецтво керування повітрям",
+      "ability": "Лучше уходит от атак",
+      "cost": 4,
+      "image_icon": "sailboat"
+    },
+    {
+      "id": "card_008",
+      "name": "Кристальна земля",
+      "element": "earth",
+      "rarity": "common",
+      "power": 16,
+      "description": "Базова стихія землі",
+      "ability": "Без здібності",
+      "cost": 2,
+      "image_icon": "crystal"
+    },
+    {
+      "id": "card_009",
+      "name": "Искра",
+      "element": "fire",
+      "rarity": "common",
+      "power": 12,
+      "description": "Мала вогняна частинка",
+      "ability": "Без здібності",
+      "cost": 1,
+      "image_icon": "spark"
+    },
+    {
+      "id": "card_010",
+      "name": "Крапля",
+      "element": "water",
+      "rarity": "common",
+      "power": 10,
+      "description": "Невелика порція води",
+      "ability": "Без здібності",
+      "cost": 1,
+      "image_icon": "drop"
+    },
+    {
+      "id": "card_011",
+      "name": "Вітер",
+      "element": "air",
+      "rarity": "common",
+      "power": 14,
+      "description": "Легкий поривок повітря",
+      "ability": "Без здібності",
+      "cost": 1,
+      "image_icon": "breeze"
+    },
+    {
+      "id": "card_012",
+      "name": "Камінь",
+      "element": "earth",
+      "rarity": "common",
+      "power": 13,
+      "description": "Звичайний каміньземлі",
+      "ability": "Без здібності",
+      "cost": 1,
+      "image_icon": "rock"
+    },
+    {
+      "id": "card_013",
+      "name": "Паровий двигун",
+      "element": "steam",
+      "rarity": "epic",
+      "power": 26,
+      "description": "Серце стимпанкової машини",
+      "ability": "Кожен раунд +1 атаки",
+      "cost": 6,
+      "image_icon": "steam-engine"
+    },
+    {
+      "id": "card_014",
+      "name": "Механічна рука",
+      "element": "mech",
+      "rarity": "rare",
+      "power": 15,
+      "description": "Точна механічна сила",
+      "ability": "Атакує точно в ціль",
+      "cost": 3,
+      "image_icon": "mech-hand"
+    },
+    {
+      "id": "card_015",
+      "name": "Шестерня долі",
+      "element": "mech",
+      "rarity": "legend",
+      "power": 30,
+      "description": "Найдавніша шестерня всього світу",
+      "ability": "Контролює ймовірність подій",
+      "cost": 8,
+      "image_icon": "gear-fate"
+    },
+    {
+      "id": "card_016",
+      "name": "Льодяна піка",
+      "element": "water",
+      "rarity": "epic",
+      "power": 25,
+      "description": "Відморожена вода у формі зброї",
+      "ability": "При попаданні: заморозити",
+      "cost": 5,
+      "image_icon": "ice-spike"
+    },
+    {
+      "id": "card_017",
+      "name": "Вогнива стріла",
+      "element": "fire",
+      "rarity": "rare",
+      "power": 16,
+      "description": "Стріла з полум'ям",
+      "ability": "Швидка атака",
+      "cost": 3,
+      "image_icon": "fire-arrow"
+    },
+    {
+      "id": "card_018",
+      "name": "Повітряний щит",
+      "element": "air",
+      "rarity": "common",
+      "power": 11,
+      "description": "Захист із повітряних потоків",
+      "ability": "Без здібності",
+      "cost": 2,
+      "image_icon": "air-shield"
+    },
+    {
+      "id": "card_019",
+      "name": "Земляна стіна",
+      "element": "earth",
+      "rarity": "rare",
+      "power": 18,
+      "description": "Захисна стіна з землі",
+      "ability": "Поглинає 2 шкоди",
+      "cost": 3,
+      "image_icon": "earth-wall"
+    },
+    {
+      "id": "card_020",
+      "name": "Паровий клапан",
+      "element": "steam",
+      "rarity": "common",
+      "power": 12,
+      "description": "Контролює потік пара",
+      "ability": "Без здібності",
+      "cost": 2,
+      "image_icon": "steam-valve"
+    },
+    {
+      "id": "card_021",
+      "name": "Винтовий гвинт",
+      "element": "mech",
+      "rarity": "common",
+      "power": 10,
+      "description": "Базова механічна деталь",
+      "ability": "Без здібності",
+      "cost": 1,
+      "image_icon": "screw"
+    },
+    {
+      "id": "card_022",
+      "name": "Велика вогняна куля",
+      "element": "fire",
+      "rarity": "epic",
+      "power": 23,
+      "description": "Глобус лави та вогню",
+      "ability": "Атакує центр поля",
+      "cost": 5,
+      "image_icon": "fireball"
+    },
+    {
+      "id": "card_023",
+      "name": "Ледяна королева",
+      "element": "water",
+      "rarity": "legend",
+      "power": 29,
+      "description": "Правителька холодних морів",
+      "ability": "Заморожує всіх ворогів",
+      "cost": 8,
+      "image_icon": "ice-queen"
+    },
+    {
+      "id": "card_024",
+      "name": "Гарпун",
+      "element": "water",
+      "rarity": "common",
+      "power": 13,
+      "description": "Древня зброя мисливців",
+      "ability": "Без здібності",
+      "cost": 2,
+      "image_icon": "harpoon"
+    },
+    {
+      "id": "card_025",
+      "name": "Метеоритний вудар",
+      "element": "earth",
+      "rarity": "epic",
+      "power": 27,
+      "description": "Космічна сила стикає землю",
+      "ability": "Атакує землю",
+      "cost": 6,
+      "image_icon": "meteor"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_cards": 25,
+    "elements": {
+      "fire": { "count": 6, "color": "#c45a2a" },
+      "water": { "count": 6, "color": "#3b6c8e" },
+      "air": { "count": 4, "color": "#9fb6c1" },
+      "earth": { "count": 5, "color": "#7a6a3a" },
+      "steam": { "count": 2, "color": "#8a7f8a" },
+      "mech": { "count": 2, "color": "#5a5a5a" }
+    },
+    "rarities": {
+      "common": { "count": 9, "color": "#b8a27b" },
+      "rare": { "count": 8, "color": "#6fb2ff" },
+      "epic": { "count": 5, "color": "#b07cff" },
+      "legend": { "count": 3, "color": "#ffcc66" }
+    }
+  }
+}
