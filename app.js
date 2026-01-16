@@ -156,8 +156,10 @@ function updateTasks(type, amount = 1) {
 function capEnemyPowerRelative(enemyPower, playerPower) {
   const ep = Number(enemyPower) || 0;
   const pp = Number(playerPower) || 0;
-  // Максимальна сила ворога не більше 20
-  return Math.min(ep, pp + 20, 20);
+  // Сила ворога у діапазоні [pp-20, pp+20], але не менше 0
+  const minPower = Math.max(0, pp - 20);
+  const maxPower = pp + 20;
+  return Math.max(minPower, Math.min(ep, maxPower));
 }
 
 // =========================================================
@@ -175,23 +177,24 @@ function buildEnemyCardPool(targetPower, allCards, maxCards = 9) {
       filteredCards = filteredCards.filter(c => c.rarity !== 'mythic' && c.rarityId !== 'R6');
     }
   }
-  // Підбір карт максимально близько до сили гравця (targetPower)
-  // Жадібний алгоритм: підбираємо карти, щоб сума була максимально близька до targetPower
+  // Підбір карт так, щоб сума їх сили була в діапазоні [targetPower-20, targetPower+20]
   filteredCards = filteredCards.sort((a, b) => b.power - a.power);
   let bestCombo = [];
   let bestSum = 0;
+  const minPower = Math.max(0, targetPower - 20);
+  const maxPower = targetPower + 20;
   // Перебираємо всі комбінації до maxCards (жадібно, але не рандомно)
-  function findBestCombo(cards, maxCards, target, current = [], sum = 0, idx = 0) {
-    if (current.length > maxCards || sum > target) return;
-    if (sum > bestSum && sum <= target) {
+  function findBestCombo(cards, maxCards, minTarget, maxTarget, current = [], sum = 0, idx = 0) {
+    if (current.length > maxCards || sum > maxTarget) return;
+    if (sum >= minTarget && sum <= maxTarget && sum > bestSum) {
       bestSum = sum;
       bestCombo = [...current];
     }
     for (let i = idx; i < cards.length; i++) {
-      findBestCombo(cards, maxCards, target, [...current, cards[i]], sum + cards[i].power, i + 1);
+      findBestCombo(cards, maxCards, minTarget, maxTarget, [...current, cards[i]], sum + cards[i].power, i + 1);
     }
   }
-  findBestCombo(filteredCards, maxCards, targetPower);
+  findBestCombo(filteredCards, maxCards, minPower, maxPower);
   // fallback: якщо не набрали нічого — взяти мінімальну карту
   if (bestCombo.length === 0 && filteredCards.length) {
     bestCombo = [filteredCards[filteredCards.length - 1]];
@@ -1653,7 +1656,7 @@ sortSelect?.addEventListener('change', (e) => {
   window.createDuel = function(playerDeck9, enemyDeck9){
     const pHP = playerDeck9.reduce((s,c)=>s+(c.power||0),0);
     const eHP = enemyDeck9.reduce((s,c)=>s+(c.power||0),0);
-    
+
     const player = {
       hp: pHP,
       maxHp: pHP,
@@ -1661,10 +1664,10 @@ sortSelect?.addEventListener('change', (e) => {
       cursor: 0,
       hand: []
     };
-    
+
     const enemy = {
-      hp: capEnemyPowerRelative(eHP, pHP),
-      maxHp: capEnemyPowerRelative(eHP, pHP),
+      hp: eHP,
+      maxHp: eHP,
       deck: shuffle(enemyDeck9),
       cursor: 0,
       hand: []
@@ -4037,33 +4040,17 @@ try {
         return deck.reduce((s, c) => s + (c.power || 0), 0);
       },
 
-      // Генерация адаптивной колоды противника: пытаемся приблизиться к суммарной силе игрока ±100
-      generateAdaptiveEnemyDeck(playerDeck9, profile) {
+      // Генерация адаптивной колоды противника: HP врага ≈ HP игрока ±20
+      generateAdaptiveEnemyDeck(playerDeck9, playerHP) {
         const calcPower = (card, level = 1) => {
           if (window.getPower) return window.getPower(card, level);
           return card.attack || card.basePower || 0;
         };
 
-        // вычисляем суммарную силу игрока, опираясь на прогресс, если доступен
-        let playerTotal = 0;
-        try {
-          if (profile && profile.deckCards && profile.deckCards.length) {
-            profile.deckCards.forEach(dc => {
-              const src = (window.ALL_CARDS || []).find(x => x.id === (dc.cardId || dc.id)) || null;
-              const prog = window.getProgress ? window.getProgress(profile, dc.cardId || dc.id) : { level: dc.level || 1 };
-              const lvl = (prog && prog.level) ? prog.level : (dc.level || 1);
-              if (src) playerTotal += calcPower(src, lvl) || 0;
-            });
-          } else {
-            playerTotal = playerDeck9.reduce((s, c) => s + (calcPower(c, 1) || 0), 0);
-          }
-        } catch (err) {
-          playerTotal = playerDeck9.reduce((s, c) => s + (calcPower(c, 1) || 0), 0);
-        }
-
+        // Целевое значение — HP игрока ±20
         const offset = Math.floor(Math.random() * 41) - 20; // -20..+20
-        const targetTotal = Math.max(0, playerTotal + offset);
-        console.log('generateAdaptiveEnemyDeck: playerTotal=', playerTotal, 'offset=', offset, 'targetTotal=', targetTotal);
+        const targetTotal = Math.max(0, playerHP + offset);
+        console.log('generateAdaptiveEnemyDeck: playerHP=', playerHP, 'offset=', offset, 'targetTotal=', targetTotal);
 
         // pool: если мало карт - используем ALL_CARDS
         const allCards = window.ALL_CARDS || window.CARDS_COMMON || [];
@@ -4103,12 +4090,12 @@ try {
           attempts++;
         }
 
-        // Ensure total power does not exceed playerTotal + 20
+        // Ensure total power does not exceed playerHP + 20
         let totalPower = enriched.reduce((s, e) => s + e.power, 0);
-        if (totalPower > playerTotal + 20) {
+        if (totalPower > playerHP + 20) {
           // Sort by power descending and reduce levels
           enriched.sort((a, b) => b.power - a.power);
-          for (let i = 0; i < enriched.length && totalPower > playerTotal + 20; i++) {
+          for (let i = 0; i < enriched.length && totalPower > playerHP + 20; i++) {
             const e = enriched[i];
             const minPower = calcPower(e.src, 1);
             if (e.power > minPower) {
@@ -4164,14 +4151,15 @@ try {
           return;
         }
         const playerDeck9 = this.buildDuelDeckFromProfile(profile);
-        const playerPower = this.calcDeckPower(playerDeck9);
+        // HP игрока = сумма силы 9 карт
+        const playerHP = playerDeck9.reduce((s, c) => s + (c.power || 0), 0);
 
-        // Генерируем адаптивную колоду противника с использованием новой логики (приближенно к playerPower ±100)
-        const enemyDeck9 = this.generateAdaptiveEnemyDeck(playerDeck9, profile);
-        let enemyPower = capEnemyPowerRelative(this.calcDeckPower(enemyDeck9), playerPower);
+        // Генерируем адаптивную колоду противника с использованием playerHP
+        const enemyDeck9 = this.generateAdaptiveEnemyDeck(playerDeck9, playerHP);
+        let enemyPower = capEnemyPowerRelative(this.calcDeckPower(enemyDeck9), playerHP);
 
         // Зберігаємо pending
-        this.pendingDuel = { playerDeck9, enemyDeck9, playerPower, enemyPower };
+        this.pendingDuel = { playerDeck9, enemyDeck9, playerPower: playerHP, enemyPower };
         // Автоматичний пошук/початок бою — міні-таймаут для відчуття пошуку
         const logEl = document.getElementById('duelLog');
         if (logEl) logEl.textContent = 'Противник знайдений — готуємось...';
