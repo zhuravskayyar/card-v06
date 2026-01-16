@@ -4060,7 +4060,8 @@ try {
         const cardPower = c => calcPower(c, 1) || 0;
 
         // Ensure pool items have numeric `power` field (buildEnemyCardPool expects that)
-        const poolWithPower = pool.map(c => Object.assign({}, c, { power: cardPower(c) }));
+        // и минимум силы карты 12
+        const poolWithPower = pool.map(c => Object.assign({}, c, { power: Math.max(12, cardPower(c)) }));
 
         // Use buildEnemyCardPool to select cards close to targetTotal
         const { cards: selected, totalPower: baseTotal } = buildEnemyCardPool(targetTotal, poolWithPower, 9);
@@ -4069,11 +4070,11 @@ try {
         if (selected.length < 9) {
           // If pool selection returned too few, fill with lowest-power cards from poolWithPower
           const extras = poolWithPower.filter(c => !selected.includes(c)).slice(0, 9 - selected.length);
-          selected.push(...extras.map(e => ({ id: e.id, element: e.element, rarity: e.rarity, power: e.power })));
+          selected.push(...extras.map(e => ({ id: e.id, element: e.element, rarity: e.rarity, power: Math.max(12, e.power) })));
         }
 
         // Level-up selected cards to approach targetTotal
-        const enriched = selected.map(c => ({ src: c, level: 1, power: cardPower(c) }));
+        const enriched = selected.map(c => ({ src: c, level: 1, power: Math.max(12, (c && typeof c.power === 'number') ? c.power : cardPower(c)) }));
         let selectedSum = enriched.reduce((s, e) => s + e.power, 0);
         let attempts = 0;
         const maxAttempts = 500;
@@ -4111,7 +4112,7 @@ try {
         }
 
         // Map to lightweight enemy objects compatible with legacy duel
-        const enemyDeck9 = enriched.map(e => ({ id: e.src.id, element: e.src.element, rarity: e.src.rarity, power: Math.max(1, Math.round(e.power || 1)) }));
+        const enemyDeck9 = enriched.map(e => ({ id: e.src.id, element: e.src.element, rarity: e.src.rarity, power: Math.max(12, Math.round(e.power || 12)) }));
         console.log('enemyDeck9 length=', enemyDeck9.length, 'totalPower=', enriched.reduce((s, e) => s + e.power, 0));
         return enemyDeck9;
       },
