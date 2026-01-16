@@ -156,7 +156,8 @@ function updateTasks(type, amount = 1) {
 function capEnemyPowerRelative(enemyPower, playerPower) {
   const ep = Number(enemyPower) || 0;
   const pp = Number(playerPower) || 0;
-  return Math.min(ep, pp + 20);
+  // Максимальна сила ворога не більше 20
+  return Math.min(ep, pp + 20, 20);
 }
 
 // =========================================================
@@ -164,29 +165,39 @@ function capEnemyPowerRelative(enemyPower, playerPower) {
 // =========================================================
 function buildEnemyCardPool(targetPower, allCards, maxCards = 9) {
   // беремо тільки базові карти (без прокачки гравця)
-  const pool = allCards
-    .filter(c => c && typeof c.power === 'number')
-    .sort((a, b) => b.power - a.power); // від сильних до слабких
-
-  const result = [];
-  let total = 0;
-
-  for (const card of pool) {
-    if (result.length >= maxCards) break;
-    if (total + card.power <= targetPower) {
-      result.push(card);
-      total += card.power;
+  // Якщо сила гравця = 12 * кількість карт (всі карти по 12), не давати ворогу міфічні карти
+  let filteredCards = allCards.filter(c => c && typeof c.power === 'number');
+  // Визначаємо, чи всі карти гравця по 12 (стартові)
+  if (typeof window !== 'undefined' && window.playerDeck) {
+    const playerCards = window.playerDeck;
+    const allTwelve = Array.isArray(playerCards) && playerCards.length > 0 && playerCards.every(card => (card.basePower || card.power) === 12);
+    if (allTwelve) {
+      filteredCards = filteredCards.filter(c => c.rarity !== 'mythic' && c.rarityId !== 'R6');
     }
-    if (total >= targetPower * 0.95) break; // допуск 5%
   }
-
+  // Підбір карт максимально близько до сили гравця (targetPower)
+  // Жадібний алгоритм: підбираємо карти, щоб сума була максимально близька до targetPower
+  filteredCards = filteredCards.sort((a, b) => b.power - a.power);
+  let bestCombo = [];
+  let bestSum = 0;
+  // Перебираємо всі комбінації до maxCards (жадібно, але не рандомно)
+  function findBestCombo(cards, maxCards, target, current = [], sum = 0, idx = 0) {
+    if (current.length > maxCards || sum > target) return;
+    if (sum > bestSum && sum <= target) {
+      bestSum = sum;
+      bestCombo = [...current];
+    }
+    for (let i = idx; i < cards.length; i++) {
+      findBestCombo(cards, maxCards, target, [...current, cards[i]], sum + cards[i].power, i + 1);
+    }
+  }
+  findBestCombo(filteredCards, maxCards, targetPower);
   // fallback: якщо не набрали нічого — взяти мінімальну карту
-  if (result.length === 0 && pool.length) {
-    result.push(pool[pool.length - 1]);
-    total = result[0].power;
+  if (bestCombo.length === 0 && filteredCards.length) {
+    bestCombo = [filteredCards[filteredCards.length - 1]];
+    bestSum = bestCombo[0].power;
   }
-
-  return { cards: result, totalPower: total };
+  return { cards: bestCombo, totalPower: bestSum };
 }
 
 // Маппінг елементів для фракцій
@@ -4983,3 +4994,110 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
     if (typeof onDone === 'function') onDone();
   }, 690);
 }
+
+// ===== PERF PATCH v1 (mobile) =====
+(function () {
+  // 1) RAF-batched DOM writes
+  const textQueue = new Map(); // el -> string
+  const classQueue = []; // [el, className, enabled]
+  let rafPending = false;
+
+  function flushUI() {
+    rafPending = false;
+
+    // text updates
+    for (const [el, val] of textQueue) {
+      if (el && el.textContent !== val) el.textContent = val;
+    }
+    textQueue.clear();
+
+    // class toggles
+    for (let i = 0; i < classQueue.length; i++) {
+      const [el, cls, on] = classQueue[i];
+      if (!el) continue;
+      el.classList.toggle(cls, !!on);
+    }
+    classQueue.length = 0;
+  }
+
+  function scheduleFlush() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(flushUI);
+  }
+
+  // API to use in your code
+  window.uiSetText = function (selectorOrEl, value) {
+    const el =
+      typeof selectorOrEl === "string"
+        ? document.querySelector(selectorOrEl)
+        : selectorOrEl;
+
+    if (!el) return;
+    textQueue.set(el, String(value));
+    scheduleFlush();
+  };
+
+  window.uiToggleClass = function (selectorOrEl, className, enabled) {
+    const el =
+      typeof selectorOrEl === "string"
+        ? document.querySelector(selectorOrEl)
+        : selectorOrEl;
+
+    if (!el) return;
+    classQueue.push([el, className, enabled]);
+    scheduleFlush();
+  };
+
+  // 2) One UI interval for timers/progress (instead of many setInterval)
+  // Call window.uiTickCallbacks.add(fn) to run fn every 250ms
+  const callbacks = new Set();
+  window.uiTickCallbacks = callbacks;
+
+  setInterval(() => {
+    // Run lightweight callbacks only (no full re-render)
+    callbacks.forEach((fn) => {
+      try { fn(); } catch (e) {}
+    });
+  }, 250);
+
+  // 3) Debounced save (avoid localStorage freezes)
+  let saveTimer = null;
+  window.debouncedSaveProfile = function (saveFn, delay = 800) {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      saveTimer = null;
+      try { saveFn(); } catch (e) {}
+    }, delay);
+  };
+
+  // 4) Prefer passive listeners for touch/scroll
+  // (doesn't change your code; just helper if you add listeners)
+  window.addPassive = function (el, event, handler) {
+    el.addEventListener(event, handler, { passive: true });
+  };
+})();
+
+/* ===== Click delegation helper (optional) =====
+   Usage: mark actionable buttons with data-action and optional data-id.
+   Example: <button data-action="upgradeCard" data-id="123">Upgrade</button>
+*/
+(function () {
+  const root = document.body;
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+
+    try {
+      if (action === 'takeTaskReward' && window.takeTaskReward) window.takeTaskReward(id);
+      else if (action === 'upgradeCard' && window.upgradeCard) window.upgradeCard(id);
+      else if (action === 'buyItem' && window.buyItem) window.buyItem(id);
+      // add more routes as needed
+    } catch (e) {
+      // swallow errors to avoid breaking global handler
+    }
+  }, { passive: true });
+})();
