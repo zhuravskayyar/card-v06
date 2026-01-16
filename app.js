@@ -572,17 +572,24 @@ if (typeof module !== 'undefined' && module.exports) {
  * @returns {number} округлена сила карти
  */
 function getPower(card, level = 1) {
-  if (!card || !card.basePower) {
-    console.warn('Invalid card or missing basePower:', card);
-    return 0;
+  if (!card) return 0;
+
+  // Если есть basePower — используем формулу прокачки
+  if (typeof card.basePower === 'number' && !isNaN(card.basePower) && card.basePower > 0) {
+    const lvl = Math.max(1, Math.floor(level));
+    const multiplier = card.upgradeMult || 1.1;
+    const power = card.basePower * Math.pow(multiplier, lvl - 1);
+    return Math.round(power);
   }
 
-  const lvl = Math.max(1, Math.floor(level));
-  const multiplier = card.upgradeMult || 1.1;
-  
-  // Формула: basePower * (mult)^(level-1)
-  const power = card.basePower * Math.pow(multiplier, lvl - 1);
-  return Math.round(power);
+  // Если basePower отсутствует, но уже есть рассчитанное поле `power` — используем его
+  if (typeof card.power === 'number' && !isNaN(card.power)) {
+    return Math.round(card.power);
+  }
+
+  // В остальных случаях логируем одно предупреждение и возвращаем 0
+  console.warn('Invalid card or missing basePower and power:', card);
+  return 0;
 }
 
 /**
