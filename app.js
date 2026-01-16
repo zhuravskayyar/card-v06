@@ -4059,13 +4059,17 @@ try {
 
         const cardPower = c => calcPower(c, 1) || 0;
 
+        // Ensure pool items have numeric `power` field (buildEnemyCardPool expects that)
+        const poolWithPower = pool.map(c => Object.assign({}, c, { power: cardPower(c) }));
+
         // Use buildEnemyCardPool to select cards close to targetTotal
-        const { cards: selected, totalPower: baseTotal } = buildEnemyCardPool(targetTotal, pool, 9);
+        const { cards: selected, totalPower: baseTotal } = buildEnemyCardPool(targetTotal, poolWithPower, 9);
 
         // Fill if not enough
         if (selected.length < 9) {
-          const extras = (allCards.concat(selected)).slice(0, 9 - selected.length);
-          selected.push(...extras);
+          // If pool selection returned too few, fill with lowest-power cards from poolWithPower
+          const extras = poolWithPower.filter(c => !selected.includes(c)).slice(0, 9 - selected.length);
+          selected.push(...extras.map(e => ({ id: e.id, element: e.element, rarity: e.rarity, power: e.power })));
         }
 
         // Level-up selected cards to approach targetTotal
