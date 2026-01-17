@@ -284,6 +284,9 @@ function generateEnemyForDuel() {
     return { id: src.id || ci.id, element: src.element || 'fire', rarity: src.rarity || 'common', power };
   });
 
+  // Diagnostic log: show per-card powers chosen for enemy
+  try { console.debug('generateEnemyForDuel -> deck powers', deck.map(d=>d.power)); } catch(e) {}
+
   const powerSum = deck.reduce((s, c) => s + (c.power || 0), 0);
 
   return {
@@ -4284,8 +4287,10 @@ try {
 
         // Генерируем колоду противника через новый генератор, привязанный к реальной силе игрока
         const enemyObj = (typeof generateEnemyForDuel === 'function') ? generateEnemyForDuel() : { deck: [], power: 0 };
-        const enemyDeck9 = enemyObj.deck || enemyObj.deckCards || [];
+        // make a safe shallow copy of deck objects to avoid accidental shared references
+        const enemyDeck9 = (enemyObj.deck || enemyObj.deckCards || []).map(c => Object.assign({}, c));
         let enemyPower = capEnemyPowerRelative(enemyObj.power || 0, playerHP);
+        try { console.debug('startRandomDuel -> generated enemy deck powers', enemyDeck9.map(d => d.power)); } catch(e) {}
 
         // Зберігаємо pending
         this.pendingDuel = { playerDeck9, enemyDeck9, playerPower: playerHP, enemyPower };
