@@ -567,6 +567,32 @@ const COLLECTIONS = [
       value: 0.05
     },
     cards: ["F02-R1", "F02-R2", "F02-R3", "F02-R4", "F02-R5", "F02-R6"]
+  },
+  {
+    id: "steam_forge",
+    name: "Парова Кузня",
+    faction: "Парова Кузня",
+    total: 6,
+    bonus: {
+      text: "+5% картам повітряної стихії на турнірі",
+      type: "element_bonus",
+      element: "air",
+      value: 0.05
+    },
+    cards: ["F03-R1", "F03-R2", "F03-R3", "F03-R4", "F03-R5", "F03-R6"]
+  },
+  {
+    id: "dragon_clan",
+    name: "Клан Драконів",
+    faction: "Клан Драконів",
+    total: 6,
+    bonus: {
+      text: "+5% картам земляної стихії на турнірі",
+      type: "element_bonus",
+      element: "earth",
+      value: 0.05
+    },
+    cards: ["F04-R1", "F04-R2", "F04-R3", "F04-R4", "F04-R5", "F04-R6"]
   }
 ];
 
@@ -3981,6 +4007,11 @@ try {
         const found = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
         document.getElementById("collection-progress").textContent = `Знайдено ${found} із ${col.total}`;
 
+        // Якщо колекція завершена, активувати бонус
+        if (found === col.total) {
+          this.applyCollectionBonus(col.bonus);
+        }
+
         // Рендер карт
         const grid = document.getElementById("collectionCardsGrid");
         if (!grid) return;
@@ -4002,6 +4033,14 @@ try {
 
         // Показати сторінку
         this.showPage('collection-details');
+      },
+
+      // Застосування бонусу колекції
+      applyCollectionBonus(bonus) {
+        // Тут логіка активації бонусу
+        // Наприклад, додати до профілю активні бонусы
+        console.log('Applying collection bonus:', bonus);
+        // Можна зберігати в profile.activeBonuses або подібне
       },
 
       // Стара реалізація (замінена)
