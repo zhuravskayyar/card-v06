@@ -551,21 +551,20 @@
 
 <!-- Collection Details Page -->
 <section class="page" id="page-collection-details">
-<div class="page-header">
-<button class="back-btn" data-page="collections">← Назад</button>
-<h2 class="page-title" id="collection-details-title">Деталі колекції</h2>
-</div>
-<div class="page-content">
-<div class="collection-details">
-<div class="collection-info">
-<div class="collection-name" id="collection-name"></div>
-<div class="collection-bonus" id="collection-bonus"></div>
-<div class="collection-progress" id="collection-progress"></div>
-</div>
-<div class="collection-cards-grid" id="collectionCardsGrid"></div>
-<button class="shop-btn" id="collection-shop-btn">Магазин</button>
-</div>
-</div>
+  <div class="page-header">
+    <button class="back-btn" data-page="collections">← Назад</button>
+    <h2 id="collectionTitle"></h2>
+  </div>
+
+  <div class="collection-bonus" id="collectionBonus"></div>
+
+  <div class="collection-progress" id="collectionProgress"></div>
+
+  <div class="collection-cards-grid" id="collectionCardsGrid"></div>
+
+  <div class="page-footer">
+    <button class="btn" onclick="openShop()">Магазин</button>
+  </div>
 </section>
 
   <!-- Combined scripts -->

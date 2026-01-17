@@ -519,82 +519,79 @@ const FACTION_NAMES = {
 // Колекції фракцій
 const COLLECTIONS = [
   {
-    id: "lords_of_sea",
+    id: "sea_lords",
     name: "Хазяї морів",
     faction: "Трон Глибин",
-    total: 6,
+    cards: ["F11-R1","F11-R2","F11-R3","F11-R4","F11-R5","F11-R6","F11-R7","F11-R8","F11-R9"],
     bonus: {
-      text: "+5% картам водної стихії на турнірі",
-      type: "element_bonus",
+      type: "element",
       element: "water",
-      value: 0.05
-    },
-    cards: ["F11-R1", "F11-R2", "F11-R3", "F11-R4", "F11-R5", "F11-R6"]
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
   },
   {
     id: "orde_horde",
     name: "Сила орди",
     faction: "Домініон Штурму",
-    total: 6,
+    cards: ["F06-R1","F06-R2","F06-R3","F06-R4","F06-R5","F06-R6"],
     bonus: {
-      text: "+5% атаки в дуелях",
-      type: "attack_bonus",
-      value: 0.05
-    },
-    cards: ["F06-R1", "F06-R2", "F06-R3", "F06-R4", "F06-R5", "F06-R6"]
+      type: "attack",
+      value: 0.05,
+      text: "+5% атаки в дуелях"
+    }
   },
   {
     id: "ash_order",
     name: "Орден Попелу",
     faction: "Орден Попелу",
-    total: 6,
+    cards: ["F01-R1","F01-R2","F01-R3","F01-R4","F01-R5","F01-R6"],
     bonus: {
-      text: "+5% картам вогняної стихії на турнірі",
-      type: "element_bonus",
+      type: "element",
       element: "fire",
-      value: 0.05
-    },
-    cards: ["F01-R1", "F01-R2", "F01-R3", "F01-R4", "F01-R5", "F01-R6"]
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
   },
   {
     id: "steel_legion",
     name: "Сталевий Легіон",
     faction: "Сталевий Легіон",
-    total: 6,
+    cards: ["F02-R1","F02-R2","F02-R3","F02-R4","F02-R5","F02-R6"],
     bonus: {
-      text: "+5% захисту в дуелях",
-      type: "defense_bonus",
-      value: 0.05
-    },
-    cards: ["F02-R1", "F02-R2", "F02-R3", "F02-R4", "F02-R5", "F02-R6"]
+      type: "defense",
+      value: 0.05,
+      text: "+5% захисту в дуелях"
+    }
   },
   {
     id: "steam_forge",
     name: "Парова Кузня",
     faction: "Парова Кузня",
-    total: 6,
+    cards: ["F03-R1","F03-R2","F03-R3","F03-R4","F03-R5","F03-R6"],
     bonus: {
-      text: "+5% картам повітряної стихії на турнірі",
-      type: "element_bonus",
+      type: "element",
       element: "air",
-      value: 0.05
-    },
-    cards: ["F03-R1", "F03-R2", "F03-R3", "F03-R4", "F03-R5", "F03-R6"]
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
   },
   {
     id: "dragon_clan",
     name: "Клан Драконів",
     faction: "Клан Драконів",
-    total: 6,
+    cards: ["F04-R1","F04-R2","F04-R3","F04-R4","F04-R5","F04-R6"],
     bonus: {
-      text: "+5% картам земляної стихії на турнірі",
-      type: "element_bonus",
+      type: "element",
       element: "earth",
-      value: 0.05
-    },
-    cards: ["F04-R1", "F04-R2", "F04-R3", "F04-R4", "F04-R5", "F04-R6"]
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
   }
 ];
+
+// Глобальний активний буфер бонусів колекцій
+let ACTIVE_COLLECTION_BONUSES = [];
 
 // Назви карт для кожної фракції
 const CARD_NAMES = {
@@ -689,7 +686,25 @@ if (typeof window !== 'undefined' && typeof window.getPower === 'undefined') {
     const incByRarity = { R1: 10, R2: 20, R3: 50, R4: 100, R5: 500, R6: 500 };
     const inc = incByRarity[rarityId] ?? 10;
     const base = Number(card.basePower) || 0;
-    return Math.round(base + inc * (lvl - 1));
+    const upgradedPower = Math.round(base + inc * (lvl - 1));
+
+    // Застосувати бонуси колекцій
+    return window.applyCollectionBonus ? window.applyCollectionBonus(card, upgradedPower) : upgradedPower;
+  };
+}
+
+// Глобальна функція для бонусів колекцій
+if (typeof window !== 'undefined' && typeof window.applyCollectionBonus === 'undefined') {
+  window.applyCollectionBonus = function applyCollectionBonus(card, basePower) {
+    let power = basePower;
+
+    (window.ACTIVE_COLLECTION_BONUSES || []).forEach(b => {
+      if (b.type === "element" && card.element === b.element) {
+        power *= (1 + b.value);
+      }
+    });
+
+    return Math.round(power);
   };
 }
 
@@ -839,6 +854,8 @@ window.CARDS_BY_RARITY = CARDS_BY_RARITY;
 window.FACTION_NAMES = FACTION_NAMES;
 window.RARITY_MULTIPLIERS = RARITY_MULTIPLIERS;
 window.STARTER_CARDS = STARTER_CARDS;
+window.COLLECTIONS = COLLECTIONS;
+window.ACTIVE_COLLECTION_BONUSES = ACTIVE_COLLECTION_BONUSES;
 
 // Глобальні функції для доступу до карт
 window.CARDS = ALL_CARDS;
@@ -3976,6 +3993,8 @@ try {
 
       // Рендер списку колекцій
       renderCollections() {
+        this.updateCollectionBonuses(); // Оновити бонуси перед рендером
+
         const grid = document.getElementById("collectionsGrid");
         if (!grid) return;
         grid.innerHTML = "";
@@ -3990,7 +4009,7 @@ try {
           el.innerHTML = `
             <div class="collection-cover"></div>
             <div class="collection-name">${col.name}</div>
-            <div class="collection-progress">${found} із ${col.total}</div>
+            <div class="collection-progress">${found} із ${col.cards.length}</div>
           `;
           grid.appendChild(el);
         });
@@ -4001,49 +4020,65 @@ try {
         const col = COLLECTIONS.find(c => c.id === id);
         if (!col) return;
 
-        // Заповнити деталі
-        document.getElementById("collection-name").textContent = col.name;
-        document.getElementById("collection-bonus").textContent = col.bonus.text;
-        const found = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
-        document.getElementById("collection-progress").textContent = `Знайдено ${found} із ${col.total}`;
+        this.showPage("collection-details");
 
-        // Якщо колекція завершена, активувати бонус
-        if (found === col.total) {
-          this.applyCollectionBonus(col.bonus);
-        }
+        document.getElementById("collectionTitle").textContent = col.name;
+        document.getElementById("collectionBonus").textContent =
+          "Бонус зібраної колекції: " + col.bonus.text;
 
-        // Рендер карт
+        const ownedCount = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
+        document.getElementById("collectionProgress").textContent =
+          `Знайдено ${ownedCount} із ${col.cards.length} карт`;
+
         const grid = document.getElementById("collectionCardsGrid");
-        if (!grid) return;
         grid.innerHTML = "";
 
         col.cards.forEach(cardId => {
           const owned = this.playerHasCard(cardId);
-          const cardData = getCardById(cardId);
-          const div = document.createElement("div");
-          div.className = "collection-card" + (owned ? " owned" : " locked");
-          if (cardData) {
-            div.innerHTML = `
-              <div class="card-name">${cardData.name}</div>
-              <div class="card-element">${cardData.element}</div>
-            `;
-          }
-          grid.appendChild(div);
+          const el = document.createElement("div");
+          el.className = "collection-card " + (owned ? "owned" : "locked");
+          grid.appendChild(el);
         });
-
-        // Показати сторінку
-        this.showPage('collection-details');
       },
 
-      // Застосування бонусу колекції
-      applyCollectionBonus(bonus) {
+      // Відкрити магазин (тимчасова функція)
+      openShop() {
+        alert('Магазин ще не реалізований');
+      },
+
+      // Активувати бонуси колекцій
+      updateCollectionBonuses() {
+        ACTIVE_COLLECTION_BONUSES = [];
+
+        COLLECTIONS.forEach(col => {
+          const owned = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
+          if (owned === col.cards.length) {
+            ACTIVE_COLLECTION_BONUSES.push(col.bonus);
+          }
+        });
+      },
+
+      // Застосування бонусу в бою
+      applyCollectionBonus(card, basePower) {
+        let power = basePower;
+
+        ACTIVE_COLLECTION_BONUSES.forEach(b => {
+          if (b.type === "element" && card.element === b.element) {
+            power *= (1 + b.value);
+          }
+        });
+
+        return Math.round(power);
+      },
+
+      // Застосування бонусу колекції (стара функція)
+      applyCollectionBonusOld(bonus) {
         // Тут логіка активації бонусу
         // Наприклад, додати до профілю активні бонусы
         console.log('Applying collection bonus:', bonus);
         // Можна зберігати в profile.activeBonuses або подібне
       },
 
-      // Стара реалізація (замінена)
       loadCollectionCardsOld() {
         const profile = userProfile.getProfile();
         if (!profile) {
