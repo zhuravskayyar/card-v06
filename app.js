@@ -203,6 +203,98 @@ function buildEnemyCardPool(targetPower, allCards, maxCards = 9) {
   return { cards: bestCombo, totalPower: bestSum };
 }
 
+// --- Helper utilities for enemy generation ---
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+function rand(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function getPlayerDeckPower() {
+  try {
+    const profile = (typeof userProfile !== 'undefined') ? userProfile.getProfile() : null;
+    const deck = (profile && profile.deckCards) ? profile.deckCards : [];
+    return deck.reduce((sum, c) => {
+      const card = getCardById(c.cardId || c.id || c);
+      return sum + (card ? (window.getPower ? window.getPower(card, c.level || 1) : getPower(card, c.level || 1)) : 0);
+    }, 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
+function isStarterDeck(deck) {
+  if (!deck || !Array.isArray(deck) || deck.length === 0) return false;
+  return deck.every(c => {
+    const card = getCardById(c.cardId || c.id || c);
+    return card && Number(card.basePower) === 12 && (c.level || 1) === 1;
+  });
+}
+
+function buildEnemyDeckByPower(targetPower, maxCards = 9) {
+  const profile = (typeof userProfile !== 'undefined') ? userProfile.getProfile() : null;
+  const playerDeck = (profile && profile.deckCards) ? profile.deckCards : [];
+
+  const starter = isStarterDeck(playerDeck);
+
+  let pool = (window.ALL_CARDS || []).filter(c => c);
+
+  if (starter) {
+    pool = pool.filter(c => c.rarity !== 'mythic' && c.rarityId !== 'R6');
+  }
+
+  pool = pool.sort((a, b) => (window.getPower ? window.getPower(b, 1) : getPower(b, 1)) - (window.getPower ? window.getPower(a, 1) : getPower(a, 1)));
+
+  const deck = [];
+  let sum = 0;
+
+  for (const card of pool) {
+    if (deck.length >= maxCards) break;
+
+    const p = window.getPower ? window.getPower(card, 1) : getPower(card, 1);
+    // try to fit keeping some tolerance
+    if (sum + p <= targetPower + 10) {
+      deck.push({ id: card.id, level: 1 });
+      sum += p;
+    }
+
+    if (sum >= targetPower - 10) break;
+  }
+
+  return { cards: deck, power: sum };
+}
+
+function generateEnemyForDuel() {
+  const playerPower = getPlayerDeckPower();
+
+  const target = clamp(
+    Math.round(playerPower * rand(0.9, 1.05)),
+    Math.max(0, playerPower - 20),
+    playerPower + 20
+  );
+
+  const enemyDeckRaw = buildEnemyDeckByPower(target, 9);
+
+  const deck = enemyDeckRaw.cards.map(ci => {
+    const src = getCardById(ci.id) || {};
+    const level = ci.level || 1;
+    const power = Math.max(12, Math.round(window.getPower ? window.getPower(src, level) : getPower(src, level) || 12));
+    return { id: src.id || ci.id, element: src.element || 'fire', rarity: src.rarity || 'common', power };
+  });
+
+  const powerSum = deck.reduce((s, c) => s + (c.power || 0), 0);
+
+  return {
+    deck,
+    power: powerSum,
+    hp: powerSum,
+    maxHp: powerSum,
+    target
+  };
+}
+
 // Маппінг елементів для фракцій
 const FACTION_ELEMENTS = {
   "F01": "fire", "F02": "fire", "F03": "fire", "F04": "fire", "F05": "fire",
@@ -4166,9 +4258,10 @@ try {
         // HP игрока = сумма силы 9 карт
         const playerHP = playerDeck9.reduce((s, c) => s + (c.power || 0), 0);
 
-        // Генерируем адаптивную колоду противника с использованием playerHP
-        const enemyDeck9 = this.generateAdaptiveEnemyDeck(playerDeck9, playerHP);
-        let enemyPower = capEnemyPowerRelative(this.calcDeckPower(enemyDeck9), playerHP);
+        // Генерируем колоду противника через новый генератор, привязанный к реальной силе игрока
+        const enemyObj = (typeof generateEnemyForDuel === 'function') ? generateEnemyForDuel() : { deck: [], power: 0 };
+        const enemyDeck9 = enemyObj.deck || enemyObj.deckCards || [];
+        let enemyPower = capEnemyPowerRelative(enemyObj.power || 0, playerHP);
 
         // Зберігаємо pending
         this.pendingDuel = { playerDeck9, enemyDeck9, playerPower: playerHP, enemyPower };
