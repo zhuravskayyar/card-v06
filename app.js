@@ -1788,6 +1788,14 @@ sortSelect?.addEventListener('change', (e) => {
       cursor: 0,
       hand: []
     };
+
+    // ASSERT: сумарна сила карт повинна дорівнювати hp ворога
+    try {
+      const chk = enemy.deck.reduce((s, c) => s + (c.power || 0), 0);
+      if (chk !== enemy.maxHp) {
+        console.error('❌ ENEMY POWER MISMATCH in createDuel', { chk, maxHp: enemy.maxHp, deck: enemy.deck });
+      }
+    } catch (e) { console.error('createDuel assert failed', e); }
     
     fillInitialHand(player, 3);
     fillInitialHand(enemy, 3);
