@@ -1753,13 +1753,27 @@ sortSelect?.addEventListener('change', (e) => {
   }
   
   window.createDuel = function(playerDeck9, enemyDeck9){
-    const pHP = playerDeck9.reduce((s,c)=>s+(c.power||0),0);
-    const eHP = enemyDeck9.reduce((s,c)=>s+(c.power||0),0);
+    // Normalize decks: ensure each card object has numeric `power` based on its id/level
+    const normalizeDeck = (deck) => (Array.isArray(deck) ? deck.map(d => {
+      const entry = (d && typeof d === 'object') ? d : { id: d };
+      const id = entry.id || entry.cardId || entry;
+      const level = entry.level || 1;
+      const src = (typeof getCardById === 'function') ? getCardById(id) : null;
+      const calc = (src ? (window.getPower ? window.getPower(src, level) : getPower(src, level)) : (entry.power || 0));
+      const power = Math.max(12, Math.round(calc || (entry.power || 0)));
+      return { id, element: (src && src.element) || entry.element || 'fire', rarity: (src && src.rarity) || entry.rarity || 'common', level, power };
+    }) : []);
+
+    const normPlayerDeck = normalizeDeck(playerDeck9);
+    const normEnemyDeck = normalizeDeck(enemyDeck9);
+
+    const pHP = normPlayerDeck.reduce((s,c)=>s+(c.power||0),0);
+    const eHP = normEnemyDeck.reduce((s,c)=>s+(c.power||0),0);
 
     const player = {
       hp: pHP,
       maxHp: pHP,
-      deck: shuffle(playerDeck9),
+      deck: shuffle(normPlayerDeck),
       cursor: 0,
       hand: []
     };
@@ -1767,7 +1781,7 @@ sortSelect?.addEventListener('change', (e) => {
     const enemy = {
       hp: eHP,
       maxHp: eHP,
-      deck: shuffle(enemyDeck9),
+      deck: shuffle(normEnemyDeck),
       cursor: 0,
       hand: []
     };
