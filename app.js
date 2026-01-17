@@ -169,6 +169,11 @@ function buildEnemyCardPool(targetPower, allCards, maxCards = 9) {
   // беремо тільки базові карти (без прокачки гравця)
   // Якщо сила гравця = 12 * кількість карт (всі карти по 12), не давати ворогу міфічні карти
   let filteredCards = allCards.filter(c => c && typeof c.power === 'number');
+  // If targetPower is small (<=1000), forbid legendary/mythic (R5/R6)
+  if (typeof targetPower === 'number' && targetPower <= 1000) {
+    const nonHigh = filteredCards.filter(c => c.rarityId !== 'R5' && c.rarityId !== 'R6' && c.rarity !== 'legendary' && c.rarity !== 'mythic');
+    if (nonHigh.length) filteredCards = nonHigh;
+  }
   // Визначаємо, чи всі карти гравця по 12 (стартові)
   if (typeof window !== 'undefined' && window.playerDeck) {
     const playerCards = window.playerDeck;
@@ -232,6 +237,58 @@ function isStarterDeck(deck) {
     return card && Number(card.basePower) === 12 && (c.level || 1) === 1;
   });
 }
+function buildEnemyDeckExact9(targetPower, maxAllowed = Number.POSITIVE_INFINITY) {
+  const pool = [...ALL_CARDS]
+    .filter(c => c && c.basePower)
+    .sort((a, b) => getPower(b, 1) - getPower(a, 1));
+
+  // If enemy target power is <= 1000, don't include R5/R6 in the pool
+  if (typeof targetPower === 'number' && targetPower <= 1000) {
+    const nonHigh = pool.filter(c => (c.rarityId || c.rarity) && c.rarityId !== 'R5' && c.rarityId !== 'R6' && c.rarity !== 'legendary' && c.rarity !== 'mythic');
+    if (nonHigh.length) {
+      // preserve sorted order
+      while (pool.length) pool.pop();
+      nonHigh.forEach(x => pool.push(x));
+    }
+  }
+
+  const deck = [];
+  let sum = 0;
+
+  // 1. Набираємо сильні карти but do not exceed targetPower
+  for (const card of pool) {
+    if (deck.length >= 9) break;
+    const p = getPower(card, 1);
+    if (sum + p <= targetPower && sum + p <= maxAllowed) {
+      deck.push({ id: card.id, level: 1, power: p });
+      sum += p;
+    }
+  }
+
+  // 2. Try to fill remaining slots with cards that do not push sum above maxAllowed
+  // Prefer weak cards first
+  const sortedByWeak = pool.slice().sort((a,b)=> getPower(a,1) - getPower(b,1));
+  let wi = 0;
+  while (deck.length < 9 && wi < sortedByWeak.length) {
+    const card = sortedByWeak[wi];
+    const p = getPower(card, 1);
+    if (sum + p <= maxAllowed) {
+      deck.push({ id: card.id, level: 1, power: p });
+      sum += p;
+    }
+    wi++;
+  }
+
+  // 3. If still not 9, allow adding weakest cards even if it slightly exceeds maxAllowed
+  const weakest = pool[pool.length - 1];
+  while (deck.length < 9 && weakest) {
+    const p = getPower(weakest, 1) || 12;
+    deck.push({ id: weakest.id, level: 1, power: p });
+    sum += p;
+  }
+
+  return { hand: deck, hp: sum, maxHp: sum };
+}
 
 function buildEnemyDeckByPower(targetPower, maxCards = 9) {
   const profile = (typeof userProfile !== 'undefined') ? userProfile.getProfile() : null;
@@ -239,61 +296,166 @@ function buildEnemyDeckByPower(targetPower, maxCards = 9) {
 
   const starter = isStarterDeck(playerDeck);
 
-  let pool = (window.ALL_CARDS || []).filter(c => c);
+  // Беремо базовий пул
+  let pool = (window.ALL_CARDS || []).filter(Boolean);
 
-  if (starter) {
-    pool = pool.filter(c => c.rarity !== 'mythic' && c.rarityId !== 'R6');
+  // If targetPower is small, filter out very high rarities
+  if (typeof targetPower === 'number' && targetPower <= 1000) {
+    const nonHigh = pool.filter(c => c.rarityId !== 'R5' && c.rarityId !== 'R6' && c.rarity !== 'legendary' && c.rarity !== 'mythic');
+    if (nonHigh.length) pool = nonHigh;
   }
 
-  pool = pool.sort((a, b) => (window.getPower ? window.getPower(b, 1) : getPower(b, 1)) - (window.getPower ? window.getPower(a, 1) : getPower(a, 1)));
+  // Якщо стартова колода — не даємо міфіки
+  if (starter) pool = pool.filter(c => c.rarity !== 'mythic' && c.rarityId !== 'R6');
 
-  const deck = [];
-  let sum = 0;
+  // Мапа потужності карти на 1 рівні
+  const p1 = (card) => {
+    try { return Math.max(12, Math.round(window.getPower ? window.getPower(card, 1) : getPower(card, 1) || 12)); }
+    catch (e) { return Math.max(12, Math.round(card.basePower || card.power || 12)); }
+  };
 
-  for (const card of pool) {
-    if (deck.length >= maxCards) break;
+  // Сортуємо за силою
+  const sorted = pool
+    .map(c => ({ id: c.id, power: p1(c) }))
+    .filter(x => x.id)
+    .sort((a,b) => a.power - b.power); // слабкі -> сильні
 
-    const p = window.getPower ? window.getPower(card, 1) : getPower(card, 1);
-    // try to fit keeping some tolerance
-    if (sum + p <= targetPower + 10) {
-      deck.push({ id: card.id, level: 1 });
-      sum += p;
+  // Унікальність
+  const pickUnique = (arr, count) => {
+    const res = [];
+    const used = new Set();
+    for (const x of arr) {
+      if (res.length >= count) break;
+      if (used.has(x.id)) continue;
+      used.add(x.id);
+      res.push({ id: x.id, level: 1, power: x.power });
+    }
+    return res;
+  };
+
+  // 1) Старт: беремо 9 найслабших (гарантовано 9, якщо пул нормальний)
+  let deck = pickUnique(sorted, maxCards);
+
+  // fallback якщо пул менший (дуже рідко)
+  while (deck.length < maxCards && sorted.length) {
+    const x = sorted[Math.floor(Math.random() * sorted.length)];
+    if (!deck.some(d => d.id === x.id)) deck.push({ id: x.id, level: 1, power: x.power });
+  }
+
+  const sumDeck = () => deck.reduce((s,c)=>s+(c.power||0),0);
+
+  // Цільовий діапазон
+  const minT = Math.max(0, targetPower - 20);
+  const maxT = targetPower + 20;
+
+  // 2) Апгрейд: замінюємо найслабші на сильніші, поки не увійдемо в діапазон
+  // Беремо кандидатів від сильних до слабких
+  const candidatesDesc = sorted.slice().sort((a,b)=>b.power-a.power);
+
+  let guard = 0;
+  while (sumDeck() < minT && guard++ < 2000) {
+    // найслабший слот
+    deck.sort((a,b)=>a.power-b.power);
+    const weakest = deck[0];
+
+    // пробуємо вставити найкращого кандидата, який не зламає унікальність
+    let replaced = false;
+    for (const cand of candidatesDesc) {
+      if (deck.some(d => d.id === cand.id)) continue; // не можна дубль
+      const newSum = sumDeck() - weakest.power + cand.power;
+      if (newSum <= maxT) {
+        deck[0] = { id: cand.id, level: 1, power: cand.power };
+        replaced = true;
+        break;
+      }
     }
 
-    if (sum >= targetPower - 10) break;
+    // якщо НЕ знайшли, дозволяємо вийти трішки за maxT, але ближче до діапазону (краще ніж 108)
+    if (!replaced) {
+      for (const cand of candidatesDesc) {
+        if (deck.some(d => d.id === cand.id)) continue;
+        const newSum = sumDeck() - weakest.power + cand.power;
+        // беремо перший, який піднімає суму (навіть якщо трохи вище maxT)
+        if (newSum > sumDeck()) {
+          deck[0] = { id: cand.id, level: 1, power: cand.power };
+          break;
+        }
+      }
+      break;
+    }
   }
 
-  return { cards: deck, power: sum };
+  // 3) Якщо перелетіли вище maxT — даунгрейд найсильніших
+  guard = 0;
+  while (sumDeck() > maxT && guard++ < 2000) {
+    deck.sort((a,b)=>b.power-a.power);
+    const strongest = deck[0];
+
+    // шукаємо слабшу заміну (якої нема в deck)
+    let replaced = false;
+    for (const cand of sorted) { // від слабких
+      if (deck.some(d => d.id === cand.id)) continue;
+      const newSum = sumDeck() - strongest.power + cand.power;
+      if (newSum >= minT) {
+        deck[0] = { id: cand.id, level: 1, power: cand.power };
+        replaced = true;
+        break;
+      }
+    }
+    if (!replaced) break;
+  }
+
+  return { cards: deck.map(d => ({ id: d.id, level: 1 })), power: sumDeck() };
 }
 
 function generateEnemyForDuel() {
   const playerPower = getPlayerDeckPower();
 
-  const target = clamp(
-    Math.round(playerPower * rand(0.9, 1.05)),
-    Math.max(0, playerPower - 20),
-    playerPower + 20
-  );
+  // choose a target within ±20 of player power
+  const offset = Math.floor(Math.random() * 41) - 20; // -20..+20
+  const minAllowed = Math.max(0, Math.round(playerPower - 20));
+  const maxAllowed = Math.round(playerPower + 20);
+  let target = Math.round(playerPower + offset);
+  target = Math.max(minAllowed, Math.min(maxAllowed, target));
 
-  const enemyDeckRaw = buildEnemyDeckByPower(target, 9);
+  // Use robust builder that guarantees 9 cards and targets the ±20 window
+  const built = buildEnemyDeckByPower(target, 9);
+  let deck = (built && built.cards) ? built.cards.map(ci => ({ id: ci.id, level: ci.level || 1 })) : [];
+  let powerSum = built && typeof built.power === 'number' ? built.power : 0;
 
-  const deck = enemyDeckRaw.cards.map(ci => {
+  // Map to full card objects with power, element, rarity
+  let mapped = deck.map(ci => {
     const src = getCardById(ci.id) || {};
     const level = ci.level || 1;
-    const power = Math.max(12, Math.round(window.getPower ? window.getPower(src, level) : getPower(src, level) || 12));
-    return { id: src.id || ci.id, element: src.element || 'fire', rarity: src.rarity || 'common', power };
+    const p = Math.max(12, Math.round(window.getPower ? window.getPower(src, level) : getPower(src, level) || 12));
+    return { id: src.id || ci.id, element: src.element || 'fire', rarity: src.rarity || 'common', power: p };
   });
 
-  // Diagnostic log: show per-card powers chosen for enemy
-  try { console.debug('generateEnemyForDuel -> deck powers', deck.map(d=>d.power)); } catch(e) {}
+  // Guarantee exactly 9 cards (fallback to weakest) if something went wrong
+  if (!Array.isArray(mapped) || mapped.length < 9) {
+    const all = (window.ALL_CARDS || []).filter(Boolean);
+    const fill = [];
+    for (const c of all) {
+      if (fill.length >= 9) break;
+      const p = Math.max(12, Math.round(window.getPower ? window.getPower(c, 1) : getPower(c, 1) || 12));
+      if (!fill.some(x => x.id === c.id)) fill.push({ id: c.id, element: c.element || 'fire', rarity: c.rarity || 'common', power: p });
+    }
+    mapped = mapped || [];
+    let fi = 0;
+    while (mapped.length < 9 && fill[fi]) mapped.push(fill[fi++]);
+    powerSum = mapped.reduce((s,c)=>s+(c.power||0),0);
+  }
 
-  const powerSum = deck.reduce((s, c) => s + (c.power || 0), 0);
+  // Diagnostic log
+  try { console.debug('generateEnemyForDuel -> deck powers', mapped.map(d=>d.power)); } catch(e) {}
+
+  const powerTotal = mapped.reduce((s, c) => s + (c.power || 0), 0);
 
   return {
-    deck,
-    power: powerSum,
-    hp: powerSum,
-    maxHp: powerSum,
+    deck: mapped,
+    power: powerTotal,
+    hp: powerTotal,
+    maxHp: powerTotal,
     target
   };
 }
@@ -1698,10 +1860,18 @@ sortSelect?.addEventListener('change', (e) => {
     earth: { fire:1.0, water:1.5, air:0.5, earth:1.0 }
   };
   window.damage = function(attackerCard, defenderCard){
-    const m = (window.MULT[attackerCard.element]||{})[defenderCard.element];
+    // Guard: якщо будь-що не існує — не ламаємо дуель
+    if (!attackerCard || !defenderCard) return { dmg: 0, mult: 1.0 };
+
+    const aEl = attackerCard.element;
+    const dEl = defenderCard.element;
+
+    const m = (window.MULT[aEl] || {})[dEl];
     const mult = typeof m === 'number' ? m : 1.0;
-    const p = attackerCard.power || 0;
+
+    const p = Number(attackerCard.power) || 0;
     const dmg = Math.round(p * mult);
+
     return { dmg, mult };
   };
 })();
@@ -1731,8 +1901,25 @@ sortSelect?.addEventListener('change', (e) => {
   // Draw next unique card (circular deck)
   function drawNextUnique(side, slotIdx){
     const fieldIds = getFieldIds(side.hand, slotIdx);
-    const maxAttempts = side.deck.length;
-    
+    // If deck is empty, fall back to side.hand or ALL_CARDS to avoid returning undefined
+    const deckSize = Array.isArray(side.deck) ? side.deck.length : 0;
+    if (deckSize === 0) {
+      const pool = (Array.isArray(side.hand) && side.hand.length) ? side.hand : (Array.isArray(window.ALL_CARDS) ? window.ALL_CARDS : []);
+      const poolSize = pool.length || 1;
+      // Try to find a non-duplicate in pool
+      for (let attempt = 0; attempt < poolSize; attempt++) {
+        const candidate = pool[side.cursor % poolSize];
+        side.cursor = (side.cursor + 1) % poolSize;
+        if (!candidate) continue;
+        if (!fieldIds.includes(candidate.id)) return candidate;
+      }
+      // fallback: return any from pool or a minimal placeholder
+      const any = pool[(side.cursor % poolSize)] || null;
+      side.cursor = (side.cursor + 1) % poolSize;
+      return any || { id: 'filler', element: 'fire', rarity: 'common', power: 12, level: 1 };
+    }
+
+    const maxAttempts = deckSize;
     for (let attempt=0; attempt<maxAttempts; attempt++){
       const candidate = side.deck[side.cursor];
       side.cursor = (side.cursor + 1) % side.deck.length;
@@ -1781,23 +1968,28 @@ sortSelect?.addEventListener('change', (e) => {
       hand: []
     };
 
+    // For enemy: keep a proper deck so drawNextUnique can pick replacements,
+    // but also expose the full 9-card pool for rendering/HP as `fullNine`.
     const enemy = {
       hp: eHP,
       maxHp: eHP,
-      deck: shuffle(normEnemyDeck),
+      deck: shuffle(normEnemyDeck.slice()),
       cursor: 0,
-      hand: []
+      hand: [],
+      fullNine: shuffle(normEnemyDeck.slice())
     };
 
     // ASSERT: сумарна сила карт повинна дорівнювати hp ворога
     try {
-      const chk = enemy.deck.reduce((s, c) => s + (c.power || 0), 0);
+      const chk = normEnemyDeck.reduce((s, c) => s + (c.power || 0), 0);
       if (chk !== enemy.maxHp) {
-        console.error('❌ ENEMY POWER MISMATCH in createDuel', { chk, maxHp: enemy.maxHp, deck: enemy.deck });
+        console.error('❌ ENEMY POWER MISMATCH in createDuel', { chk, maxHp: enemy.maxHp, deck: normEnemyDeck });
       }
     } catch (e) { console.error('createDuel assert failed', e); }
     
+    // Player keeps usual 3-card hand behavior
     fillInitialHand(player, 3);
+    // Enemy: fill 3 visible slots from its deck as usual
     fillInitialHand(enemy, 3);
     
     return {
@@ -4258,6 +4450,8 @@ try {
           air: '<div class="element-emoji air-emoji">💨</div>',
           earth: '<div class="element-emoji earth-emoji">🍃</div>'
         };
+        // Defensive: if card is missing, create a placeholder to avoid runtime errors
+        if (!card) card = { id: 'unknown', element: 'fire', rarity: 'common', power: 12, basePower: 12, level: 1, name: 'Unknown' };
         const elementIcon = elementIcons[card.element] || elementIcons.fire;
         const el = document.createElement('div');
         el.className = `sp-card ${card.element} ${card.rarity || 'common'}`;
@@ -4294,10 +4488,10 @@ try {
         const playerHP = playerDeck9.reduce((s, c) => s + (c.power || 0), 0);
 
         // Генерируем колоду противника через новый генератор, привязанный к реальной силе игрока
-        const enemyObj = (typeof generateEnemyForDuel === 'function') ? generateEnemyForDuel() : { deck: [], power: 0 };
+        const enemyObj = (typeof generateEnemyForDuel === 'function') ? generateEnemyForDuel() : { hand: [], power: 0 };
         // make a safe shallow copy of deck objects to avoid accidental shared references
-        const enemyDeck9 = (enemyObj.deck || enemyObj.deckCards || []).map(c => Object.assign({}, c));
-        let enemyPower = capEnemyPowerRelative(enemyObj.power || 0, playerHP);
+        const enemyDeck9 = (enemyObj.hand || enemyObj.deck || enemyObj.deckCards || enemyObj.cards || []).map(c => Object.assign({}, c));
+        const enemyPower = this.calcDeckPower(enemyDeck9); // == HP ворога (сума 9 карт), без cap
         try { console.debug('startRandomDuel -> generated enemy deck powers', enemyDeck9.map(d => d.power)); } catch(e) {}
 
         // Зберігаємо pending
@@ -4325,10 +4519,7 @@ try {
         this.pendingDuel.enemyName = picked;
 
         if (enemyNameEl) enemyNameEl.textContent = picked;
-        if (enemyPowerEl) enemyPowerEl.textContent = capEnemyPowerRelative(
-          this.pendingDuel.enemyPower,
-          this.pendingDuel.playerPower
-        );
+        if (enemyPowerEl) enemyPowerEl.textContent = this.pendingDuel.enemyPower;
         if (playerPowerEl) playerPowerEl.textContent = this.pendingDuel.playerPower;
 
         modal.classList.add('active');
@@ -4388,17 +4579,18 @@ try {
         enemyHandEl.innerHTML = '';
         playerHandEl.innerHTML = '';
 
-        // Render enemy hand (no interactions)
-        duel.enemy.hand.forEach((c, idx) => {
+        // Render enemy visible hand (3 cards on field). fullNine is kept for HP calculation only.
+        (duel.enemy.hand || []).forEach((c, idx) => {
           const node = this.createCardNode(c, false, idx);
           enemyHandEl.appendChild(node);
         });
 
-        // Diagnostic: ensure per-card powers sum to enemy maxHp
+        // Diagnostic: ensure enemy deck sum equals maxHp (full pool)
         try {
-          const enemySum = duel.enemy.hand.reduce((s, cc) => s + (cc.power || 0), 0);
-          if (enemySum !== duel.enemy.maxHp) {
-            console.warn('ENEMY POWER MISMATCH', { enemySum, maxHp: duel.enemy.maxHp, hand: duel.enemy.hand });
+          const deckPool = Array.isArray(duel.enemy.deck) && duel.enemy.deck.length ? duel.enemy.deck : (Array.isArray(duel.enemy.fullNine) ? duel.enemy.fullNine : []);
+          const deckSum = deckPool.reduce((s, cc) => s + (cc.power || 0), 0);
+          if (deckSum !== duel.enemy.maxHp) {
+            console.warn('ENEMY DECK MISMATCH', { deckSum, maxHp: duel.enemy.maxHp, deck: deckPool });
           }
         } catch (e) {}
 
@@ -4408,16 +4600,17 @@ try {
           node.addEventListener('click', () => {
             if (duel.finished || duelAnimLock) return;
 
-            const attackerEl = node;
+            const defenderCard = duel.enemy.hand[idx];
             const defenderEl = enemyHandEl.children[idx];
+            if (!defenderCard || !defenderEl) return;
 
-            // damage = сила удару (візьми з твоєї формули)
-            const dmg = window.damage(c, duel.enemy.hand[idx]).dmg;
+            const dmg = window.damage(c, defenderCard).dmg;
 
-            animateOriginalFlyHit(attackerEl, defenderEl, dmg, () => {
+            // Call animator which itself manages the duelAnimLock; do not set lock here
+            animateOriginalFlyHit(node, defenderEl, dmg, () => {
               window.CURRENT_DUEL = window.playTurn(duel, idx);
               this.renderDuel();
-              try { console.debug('renderDuel: after playTurn', { finished: window.CURRENT_DUEL.finished, result: window.CURRENT_DUEL.result, playerHp: window.CURRENT_DUEL.player.hp, enemyHp: window.CURRENT_DUEL.enemy.hp }); } catch(e){}
+
               if (window.CURRENT_DUEL.finished) {
                 this.showDuelResult(window.CURRENT_DUEL);
               }
@@ -4636,7 +4829,7 @@ try {
         if (gearsGained > 0) parts.push(`⚙️ +${gearsGained}`);
         if (dropInfo) parts.push(dropInfo.trim());
         rewardsEl.textContent = parts.join('  •  ') || 'Нічого не отримано';
-        winsInfoEl.textContent = `Побід в дуелях: 🏆 ${formatCompact(profile.wins || 0)}`;
+        winsInfoEl.textContent = `Перемог в дуелях: 🏆 ${formatCompact(profile.wins || 0)}`;
         summaryHpEl.textContent = duel.player.hp;
 
         // Показати підсумки бою з картами

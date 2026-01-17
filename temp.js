@@ -156,7 +156,10 @@ function updateTasks(type, amount = 1) {
 function capEnemyPowerRelative(enemyPower, playerPower) {
   const ep = Number(enemyPower) || 0;
   const pp = Number(playerPower) || 0;
-  return Math.min(ep, pp + 20);
+  // Сила ворога у діапазоні [pp-20, pp+20], але не менше 0
+  const minPower = Math.max(0, pp - 20);
+  const maxPower = pp + 20;
+  return Math.max(minPower, Math.min(ep, maxPower));
 }
 
 // =========================================================
