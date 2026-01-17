@@ -516,6 +516,60 @@ const FACTION_NAMES = {
   "F40": "Племена Скелі"
 };
 
+// Колекції фракцій
+const COLLECTIONS = [
+  {
+    id: "lords_of_sea",
+    name: "Хазяї морів",
+    faction: "Трон Глибин",
+    total: 6,
+    bonus: {
+      text: "+5% картам водної стихії на турнірі",
+      type: "element_bonus",
+      element: "water",
+      value: 0.05
+    },
+    cards: ["F11-R1", "F11-R2", "F11-R3", "F11-R4", "F11-R5", "F11-R6"]
+  },
+  {
+    id: "orde_horde",
+    name: "Сила орди",
+    faction: "Домініон Штурму",
+    total: 6,
+    bonus: {
+      text: "+5% атаки в дуелях",
+      type: "attack_bonus",
+      value: 0.05
+    },
+    cards: ["F06-R1", "F06-R2", "F06-R3", "F06-R4", "F06-R5", "F06-R6"]
+  },
+  {
+    id: "ash_order",
+    name: "Орден Попелу",
+    faction: "Орден Попелу",
+    total: 6,
+    bonus: {
+      text: "+5% картам вогняної стихії на турнірі",
+      type: "element_bonus",
+      element: "fire",
+      value: 0.05
+    },
+    cards: ["F01-R1", "F01-R2", "F01-R3", "F01-R4", "F01-R5", "F01-R6"]
+  },
+  {
+    id: "steel_legion",
+    name: "Сталевий Легіон",
+    faction: "Сталевий Легіон",
+    total: 6,
+    bonus: {
+      text: "+5% захисту в дуелях",
+      type: "defense_bonus",
+      value: 0.05
+    },
+    cards: ["F02-R1", "F02-R2", "F02-R3", "F02-R4", "F02-R5", "F02-R6"]
+  }
+];
+
 // Назви карт для кожної фракції
 const CARD_NAMES = {
   "F01": ["Попіл Кор", "Жар Пульс", "Фоєр Флюкс", "Клинок Берст", "Драйв Печі", "Штурм Жару"],
@@ -3878,7 +3932,80 @@ try {
         this.loadDeckCards();
       },
 
+      // Перевірка, чи має гравець карту
+      playerHasCard(cardId) {
+        const profile = userProfile.getProfile();
+        if (!profile) return false;
+        const foundIds = new Set([
+          ...((profile.collectionCards || []).map(c => c.id)),
+          ...((profile.deckCards || []).map(c => c.id))
+        ]);
+        return foundIds.has(cardId);
+      },
+
       loadCollectionCards() {
+        // Стара функція для елементів - тепер замінюємо на фракції
+        this.renderCollections();
+      },
+
+      // Рендер списку колекцій
+      renderCollections() {
+        const grid = document.getElementById("collectionsGrid");
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        COLLECTIONS.forEach(col => {
+          const found = col.cards.filter(id => this.playerHasCard(id)).length;
+
+          const el = document.createElement("div");
+          el.className = "collection-tile" + (found === 0 ? " locked" : "");
+          el.onclick = () => this.openCollection(col.id);
+
+          el.innerHTML = `
+            <div class="collection-cover"></div>
+            <div class="collection-name">${col.name}</div>
+            <div class="collection-progress">${found} із ${col.total}</div>
+          `;
+          grid.appendChild(el);
+        });
+      },
+
+      // Відкриття сторінки однієї колекції
+      openCollection(id) {
+        const col = COLLECTIONS.find(c => c.id === id);
+        if (!col) return;
+
+        // Заповнити деталі
+        document.getElementById("collection-name").textContent = col.name;
+        document.getElementById("collection-bonus").textContent = col.bonus.text;
+        const found = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
+        document.getElementById("collection-progress").textContent = `Знайдено ${found} із ${col.total}`;
+
+        // Рендер карт
+        const grid = document.getElementById("collectionCardsGrid");
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        col.cards.forEach(cardId => {
+          const owned = this.playerHasCard(cardId);
+          const cardData = getCardById(cardId);
+          const div = document.createElement("div");
+          div.className = "collection-card" + (owned ? " owned" : " locked");
+          if (cardData) {
+            div.innerHTML = `
+              <div class="card-name">${cardData.name}</div>
+              <div class="card-element">${cardData.element}</div>
+            `;
+          }
+          grid.appendChild(div);
+        });
+
+        // Показати сторінку
+        this.showPage('collection-details');
+      },
+
+      // Стара реалізація (замінена)
+      loadCollectionCardsOld() {
         const profile = userProfile.getProfile();
         if (!profile) {
           console.error('No profile found');

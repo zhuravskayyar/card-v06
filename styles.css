@@ -2050,6 +2050,111 @@ button.remove-from-deck {
       color: #8bc34a;
     }
 
+    /* Нова система колекцій по фракціях */
+    .collections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    .collection-tile {
+      background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+      border: 1px solid rgba(242,208,122,0.18);
+      border-radius: var(--radius);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .collection-tile:hover {
+      border-color: rgba(242,208,122,0.4);
+      transform: translateY(-2px);
+    }
+    .collection-tile.locked {
+      opacity: 0.5;
+      filter: grayscale(100%);
+    }
+    .collection-cover {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(45deg, #333, #555);
+      border-radius: 8px;
+      margin: 0 auto 10px;
+      border: 1px solid rgba(242,208,122,0.2);
+    }
+    .collection-name {
+      font-size: 14px;
+      color: var(--brass-0);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .collection-progress {
+      font-size: 12px;
+      color: var(--brass-1);
+    }
+
+    /* Деталі колекції */
+    .collection-details {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .collection-info {
+      background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+      border: 1px solid rgba(242,208,122,0.18);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .collection-bonus {
+      font-size: 14px;
+      color: #8bc34a;
+      margin-top: 8px;
+    }
+    .collection-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .collection-card {
+      background: rgba(50,30,20,0.4);
+      border: 1.5px solid rgba(242,208,122,0.15);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .collection-card.owned {
+      background: linear-gradient(180deg, rgba(242,208,122,0.12), rgba(0,0,0,0.18));
+      border-color: #8bc34a;
+    }
+    .collection-card.locked {
+      background: linear-gradient(180deg, #222 60%, #111 100%);
+      border-color: #444;
+      opacity: 0.6;
+    }
+    .shop-btn {
+      background: linear-gradient(135deg, #c59b3c, #f2d07a);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+      max-width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .shop-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
     /* Upgrade hint styling */
     .hint {
       transition: all 0.3s ease;
@@ -4933,14 +5038,3 @@ body.duel-anim-lock button{
 
 /* Рекомендуємо: використовуйте uiSetText()/uiToggleClass() замість прямого .textContent/.classList.toggle */
 
-/* --- CSS CLEANUP PATCH --- */
-/* 1. Уніфіковано одиниці виміру (px, rem) для card/grid */
-/* 2. Видалено зайві !important там, де це не потрібно */
-/* 3. Виправлено пробіли та табуляцію для читабельності */
-/* 4. Уніфіковано лапки для font-family та content */
-/* 5. Видалено порожні або дубльовані блоки */
-/* 6. Виправлено коментарі (/* ... */) */
-/* 7. Зменшено вкладеність селекторів, де це можливо */
-/* 8. Виправлено неефективні селектори (наприклад, .class tag → .class) */
-/* 9. Виправлено зайві або відкриті/закриті дужки */
-/* 10. Вирівняно відступи для всіх блоків */

@@ -307,33 +307,9 @@
 <h2 class="page-title">Колекції</h2>
 </div>
 <div class="page-content">
-<div class="collection-set">
-<div class="collection-set" id="fire-set">
-<div class="set-name">Вогняна стихія</div>
-<div class="set-progress" id="fire-progress">0/4 карт</div>
-<div class="set-bonus">+10% до вогняної шкоди</div>
-<div class="collection-grid" id="fire-collection"></div>
+<div class="collections-grid" id="collectionsGrid"></div>
 </div>
-<div class="collection-set" id="water-set">
-<div class="set-name">Водяна стихія</div>
-<div class="set-progress" id="water-progress">0/4 карт</div>
-<div class="set-bonus">+10% до водяної шкоди</div>
-<div class="collection-grid" id="water-collection"></div>
-</div>
-<div class="collection-set" id="air-set">
-<div class="set-name">Повітряна стихія</div>
-<div class="set-progress" id="air-progress">0/4 карт</div>
-<div class="set-bonus">+10% до повітряної шкоди</div>
-<div class="collection-grid" id="air-collection"></div>
-</div>
-<div class="collection-set" id="earth-set">
-<div class="set-name">Земляна стихія</div>
-<div class="set-progress" id="earth-progress">0/4 карт</div>
-<div class="set-bonus">+10% до земляної шкоди</div>
-<div class="collection-grid" id="earth-collection"></div>
-</div>
-</div>
-</div></section>
+</section>
 <!-- Card Details Page -->
 <section class="page" id="page-card-details">
 <div class="page-header">
@@ -572,6 +548,25 @@
  CardView global for modal rendering 
 
 
+
+<!-- Collection Details Page -->
+<section class="page" id="page-collection-details">
+<div class="page-header">
+<button class="back-btn" data-page="collections">← Назад</button>
+<h2 class="page-title" id="collection-details-title">Деталі колекції</h2>
+</div>
+<div class="page-content">
+<div class="collection-details">
+<div class="collection-info">
+<div class="collection-name" id="collection-name"></div>
+<div class="collection-bonus" id="collection-bonus"></div>
+<div class="collection-progress" id="collection-progress"></div>
+</div>
+<div class="collection-cards-grid" id="collectionCardsGrid"></div>
+<button class="shop-btn" id="collection-shop-btn">Магазин</button>
+</div>
+</div>
+</section>
 
   <!-- Combined scripts -->
   <script src="./app.js" defer></script>
