@@ -1,3 +1,15 @@
+// Гарантовано знімає блокування при вході в колоду
+function onEnterDeckPage(){
+  document.body.classList.remove('duel-locked','duel-anim-lock');
+}
+// Контрольна точка для перевірки повноти моделі карти (hoisted)
+function assertFullCard(card, ctx = '') {
+  if (!card || !card.id || !card.rarity || !card.element) {
+    console.warn('[BROKEN CARD MODEL]', ctx, card);
+  }
+}
+// Expose on window if not already
+window.assertFullCard = window.assertFullCard || assertFullCard;
 /* ===== js/data/cards.js ===== */
 /**
  * КАРТОВА БАЗА ГРИ - 40 ФРАКЦІЙ, 240 КАРТ
@@ -408,6 +420,46 @@ function buildEnemyDeckByPower(targetPower, maxCards = 9) {
   return { cards: deck.map(d => ({ id: d.id, level: 1 })), power: sumDeck() };
 }
 
+/* ==============================
+   Simple card renderer (recommended)
+   Usage: document.getElementById('some').innerHTML = renderCard(cardObj);
+   cardObj: { image, name, rarity, element, basePower }
+   ============================== */
+function renderCard(card){
+  if(!card) return '';
+  const rarity = (card.rarity || 'common').toString().toLowerCase();
+  const element = (card.element || '').toString().toLowerCase();
+  const img = card.image || (card.imageUrl || card.src) || '';
+  const name = card.name || '';
+  const power = (typeof card.basePower !== 'undefined') ? card.basePower : (card.power || '');
+
+  return `
+    <div class="card-frame ${rarity} ${element}">
+      <div class="card-art">
+        <img src="${img}" alt="${name}">
+      </div>
+      <div class="card-ui">
+        <div class="card-element">${getElementGlyph(element)}</div>
+        <div class="card-power">${power}</div>
+      </div>
+    </div>
+  `;
+}
+
+function getElementGlyph(el){
+  switch(el){
+    case 'fire': return '🔥';
+    case 'water': return '💧';
+    case 'air': return '🌬️';
+    case 'earth': return '⛰️';
+    default: return '';
+  }
+}
+
+// expose globally for quick usage in console/templates
+if(typeof window !== 'undefined') window.renderCard = renderCard;
+
+
 function generateEnemyForDuel() {
   const playerPower = getPlayerDeckPower();
 
@@ -517,32 +569,10 @@ const FACTION_NAMES = {
 };
 
 // Колекції фракцій
+// Колекції фракцій
 const COLLECTIONS = [
   {
-    id: "sea_lords",
-    name: "Хазяї морів",
-    faction: "Трон Глибин",
-    cards: ["F11-R1","F11-R2","F11-R3","F11-R4","F11-R5","F11-R6","F11-R7","F11-R8","F11-R9"],
-    bonus: {
-      type: "element",
-      element: "water",
-      value: 0.05,
-      text: "+5% картам водної стихії на турнірі"
-    }
-  },
-  {
-    id: "orde_horde",
-    name: "Сила орди",
-    faction: "Домініон Штурму",
-    cards: ["F06-R1","F06-R2","F06-R3","F06-R4","F06-R5","F06-R6"],
-    bonus: {
-      type: "attack",
-      value: 0.05,
-      text: "+5% атаки в дуелях"
-    }
-  },
-  {
-    id: "ash_order",
+    id: "f01",
     name: "Орден Попелу",
     faction: "Орден Попелу",
     cards: ["F01-R1","F01-R2","F01-R3","F01-R4","F01-R5","F01-R6"],
@@ -554,21 +584,238 @@ const COLLECTIONS = [
     }
   },
   {
-    id: "steel_legion",
-    name: "Сталевий Легіон",
-    faction: "Сталевий Легіон",
+    id: "f02",
+    name: "Легіон Клинків",
+    faction: "Легіон Клинків",
     cards: ["F02-R1","F02-R2","F02-R3","F02-R4","F02-R5","F02-R6"],
     bonus: {
-      type: "defense",
+      type: "element",
+      element: "fire",
       value: 0.05,
-      text: "+5% захисту в дуелях"
+      text: "+5% картам вогняної стихії на турнірі"
     }
   },
   {
-    id: "steam_forge",
-    name: "Парова Кузня",
-    faction: "Парова Кузня",
+    id: "f03",
+    name: "Культ Іскри",
+    faction: "Культ Іскри",
     cards: ["F03-R1","F03-R2","F03-R3","F03-R4","F03-R5","F03-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f04",
+    name: "Трон Дракона",
+    faction: "Трон Дракона",
+    cards: ["F04-R1","F04-R2","F04-R3","F04-R4","F04-R5","F04-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f05",
+    name: "Ковалі Магми",
+    faction: "Ковалі Магми",
+    cards: ["F05-R1","F05-R2","F05-R3","F05-R4","F05-R5","F05-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f06",
+    name: "Сини Вулкану",
+    faction: "Сини Вулкану",
+    cards: ["F06-R1","F06-R2","F06-R3","F06-R4","F06-R5","F06-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f07",
+    name: "Клани Жару",
+    faction: "Клани Жару",
+    cards: ["F07-R1","F07-R2","F07-R3","F07-R4","F07-R5","F07-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f08",
+    name: "Братство Сажі",
+    faction: "Братство Сажі",
+    cards: ["F08-R1","F08-R2","F08-R3","F08-R4","F08-R5","F08-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f09",
+    name: "Варта Кальдери",
+    faction: "Варта Кальдери",
+    cards: ["F09-R1","F09-R2","F09-R3","F09-R4","F09-R5","F09-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f10",
+    name: "Пророки Крони",
+    faction: "Пророки Крони",
+    cards: ["F10-R1","F10-R2","F10-R3","F10-R4","F10-R5","F10-R6"],
+    bonus: {
+      type: "element",
+      element: "fire",
+      value: 0.05,
+      text: "+5% картам вогняної стихії на турнірі"
+    }
+  },
+  {
+    id: "f11",
+    name: "Трон Глибин",
+    faction: "Трон Глибин",
+    cards: ["F11-R1","F11-R2","F11-R3","F11-R4","F11-R5","F11-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f12",
+    name: "Орден Припливу",
+    faction: "Орден Припливу",
+    cards: ["F12-R1","F12-R2","F12-R3","F12-R4","F12-R5","F12-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f13",
+    name: "Відьми Рифів",
+    faction: "Відьми Рифів",
+    cards: ["F13-R1","F13-R2","F13-R3","F13-R4","F13-R5","F13-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f14",
+    name: "Флот Тиші",
+    faction: "Флот Тиші",
+    cards: ["F14-R1","F14-R2","F14-R3","F14-R4","F14-R5","F14-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f15",
+    name: "Хранителі Льоду",
+    faction: "Хранителі Льоду",
+    cards: ["F15-R1","F15-R2","F15-R3","F15-R4","F15-R5","F15-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f16",
+    name: "Народ Дельти",
+    faction: "Народ Дельти",
+    cards: ["F16-R1","F16-R2","F16-R3","F16-R4","F16-R5","F16-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f17",
+    name: "Жерці Левіа",
+    faction: "Жерці Левіа",
+    cards: ["F17-R1","F17-R2","F17-R3","F17-R4","F17-R5","F17-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f18",
+    name: "Перлинний Конклав",
+    faction: "Перлинний Конклав",
+    cards: ["F18-R1","F18-R2","F18-R3","F18-R4","F18-R5","F18-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f19",
+    name: "Клан Хвилі",
+    faction: "Клан Хвилі",
+    cards: ["F19-R1","F19-R2","F19-R3","F19-R4","F19-R5","F19-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f20",
+    name: "Архів Морів",
+    faction: "Архів Морів",
+    cards: ["F20-R1","F20-R2","F20-R3","F20-R4","F20-R5","F20-R6"],
+    bonus: {
+      type: "element",
+      element: "water",
+      value: 0.05,
+      text: "+5% картам водної стихії на турнірі"
+    }
+  },
+  {
+    id: "f21",
+    name: "Кочівники Неба",
+    faction: "Кочівники Неба",
+    cards: ["F21-R1","F21-R2","F21-R3","F21-R4","F21-R5","F21-R6"],
     bonus: {
       type: "element",
       element: "air",
@@ -577,10 +824,226 @@ const COLLECTIONS = [
     }
   },
   {
-    id: "dragon_clan",
-    name: "Клан Драконів",
-    faction: "Клан Драконів",
-    cards: ["F04-R1","F04-R2","F04-R3","F04-R4","F04-R5","F04-R6"],
+    id: "f22",
+    name: "Орден Вітру",
+    faction: "Орден Вітру",
+    cards: ["F22-R1","F22-R2","F22-R3","F22-R4","F22-R5","F22-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f23",
+    name: "Яструби Грози",
+    faction: "Яструби Грози",
+    cards: ["F23-R1","F23-R2","F23-R3","F23-R4","F23-R5","F23-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f24",
+    name: "Ліга Левіти",
+    faction: "Ліга Левіти",
+    cards: ["F24-R1","F24-R2","F24-R3","F24-R4","F24-R5","F24-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f25",
+    name: "Цех Енджина",
+    faction: "Цех Енджина",
+    cards: ["F25-R1","F25-R2","F25-R3","F25-R4","F25-R5","F25-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f26",
+    name: "Сини Урагану",
+    faction: "Сини Урагану",
+    cards: ["F26-R1","F26-R2","F26-R3","F26-R4","F26-R5","F26-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f27",
+    name: "Дзвонарі Неба",
+    faction: "Дзвонарі Неба",
+    cards: ["F27-R1","F27-R2","F27-R3","F27-R4","F27-R5","F27-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f28",
+    name: "Варта Піків",
+    faction: "Варта Піків",
+    cards: ["F28-R1","F28-R2","F28-R3","F28-R4","F28-R5","F28-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f29",
+    name: "Мандрівці Астру",
+    faction: "Мандрівці Астру",
+    cards: ["F29-R1","F29-R2","F29-R3","F29-R4","F29-R5","F29-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f30",
+    name: "Конклав Сфер",
+    faction: "Конклав Сфер",
+    cards: ["F30-R1","F30-R2","F30-R3","F30-R4","F30-R5","F30-R6"],
+    bonus: {
+      type: "element",
+      element: "air",
+      value: 0.05,
+      text: "+5% картам повітряної стихії на турнірі"
+    }
+  },
+  {
+    id: "f31",
+    name: "Домініони Каменю",
+    faction: "Домініони Каменю",
+    cards: ["F31-R1","F31-R2","F31-R3","F31-R4","F31-R5","F31-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f32",
+    name: "Орден Коріння",
+    faction: "Орден Коріння",
+    cards: ["F32-R1","F32-R2","F32-R3","F32-R4","F32-R5","F32-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f33",
+    name: "Друїди Шталі",
+    faction: "Друїди Шталі",
+    cards: ["F33-R1","F33-R2","F33-R3","F33-R4","F33-R5","F33-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f34",
+    name: "Клани Щита",
+    faction: "Клани Щита",
+    cards: ["F34-R1","F34-R2","F34-R3","F34-R4","F34-R5","F34-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f35",
+    name: "Хранителі Моноліт",
+    faction: "Хранителі Моноліт",
+    cards: ["F35-R1","F35-R2","F35-R3","F35-R4","F35-R5","F35-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f36",
+    name: "Народ Печер",
+    faction: "Народ Печер",
+    cards: ["F36-R1","F36-R2","F36-R3","F36-R4","F36-R5","F36-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f37",
+    name: "Синдикат Обсидіан",
+    faction: "Синдикат Обсидіан",
+    cards: ["F37-R1","F37-R2","F37-R3","F37-R4","F37-R5","F37-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f38",
+    name: "Сторожі Лісу",
+    faction: "Сторожі Лісу",
+    cards: ["F38-R1","F38-R2","F38-R3","F38-R4","F38-R5","F38-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f39",
+    name: "Архонти Плит",
+    faction: "Архонти Плит",
+    cards: ["F39-R1","F39-R2","F39-R3","F39-R4","F39-R5","F39-R6"],
+    bonus: {
+      type: "element",
+      element: "earth",
+      value: 0.05,
+      text: "+5% картам земляної стихії на турнірі"
+    }
+  },
+  {
+    id: "f40",
+    name: "Племена Скелі",
+    faction: "Племена Скелі",
+    cards: ["F40-R1","F40-R2","F40-R3","F40-R4","F40-R5","F40-R6"],
     bonus: {
       type: "element",
       element: "earth",
@@ -785,6 +1248,17 @@ const STARTER_CARDS = [
 
 ALL_CARDS.push(...STARTER_CARDS);
 
+// Додати колекцію для стартових карт (всі карти зі STARTER_CARDS)
+if (typeof COLLECTIONS !== 'undefined' && Array.isArray(COLLECTIONS)) {
+  COLLECTIONS.unshift({
+    id: 'starter',
+    name: 'Стартові',
+    faction: 'Стартовий Набір',
+    cards: STARTER_CARDS.map(c => c.id),
+    bonus: { type: 'none', value: 0, text: 'Стартовий набір — бонус відсутній' }
+  });
+}
+
 /**
  * Швидкий індекс карт за ID
  */
@@ -859,6 +1333,76 @@ window.ACTIVE_COLLECTION_BONUSES = ACTIVE_COLLECTION_BONUSES;
 
 // Глобальні функції для доступу до карт
 window.CARDS = ALL_CARDS;
+
+// Повертає шлях до зображення карти (перевага полю `image` в об'єкті карти)
+window.getCardImage = function(cardOrId) {
+  const FALLBACK_IMG = 'assets/collection-placeholder.png';
+  if (!cardOrId) return FALLBACK_IMG;
+
+  let card = null;
+  let id = null;
+  if (typeof cardOrId === 'string') {
+    id = cardOrId;
+    card = (window.getCardById ? window.getCardById(id) : null) || window.CARDS_BY_ID?.[id] || null;
+  } else if (typeof cardOrId === 'object') {
+    card = cardOrId;
+    id = card.cardId || card.id || null;
+    if (id && typeof id === 'object') id = id.id || null;
+  }
+
+  if (card && card.image) return card.image;
+
+  // special mapping for a few legacy ids
+  const idToImg = {
+    'card_001': 'cards/s01.png',
+    'card_002': 'cards/s02.png',
+    'card_003': 'cards/s03.png',
+    'card_004': 'cards/s04.jpg'
+  };
+  if (id && idToImg[id]) return idToImg[id];
+
+  if (id) {
+    const up = String(id).toUpperCase();
+    const low = String(id).toLowerCase();
+    const candidates = [];
+    // Prefer assets folder with uppercase names (we copied files there)
+    candidates.push(`assets/cards/${up}.png`);
+    candidates.push(`assets/cards/${up}.jpg`);
+    candidates.push(`assets/cards/${low}.png`);
+    candidates.push(`assets/cards/${low}.jpg`);
+    candidates.push(`assets/cards/${id}.png`);
+    candidates.push(`assets/cards/${id}.jpg`);
+    // Then legacy cards folder (lowercase filenames first)
+    candidates.push(`cards/${low}.png`);
+    candidates.push(`cards/${low}.jpg`);
+    candidates.push(`cards/${id}.png`);
+    candidates.push(`cards/${id}.jpg`);
+
+    // Return first candidate path (we can't check file existence synchronously here).
+    // Ordering chosen to match actual files copied into `assets/cards`.
+    for (const c of candidates) {
+      if (c) return c;
+    }
+  }
+
+  return FALLBACK_IMG;
+};
+
+// Быстрый рендер-карты: возвращает HTML структуры карты с арт-блоком и оверлеем UI
+window.renderCard = function(card) {
+  const img = window.getCardImage(card);
+  return `
+    <div class="card">
+      <div class="card-art-frame">
+        <img class="card-art-img" src="${img}" alt="${card.name}">
+      </div>
+      <div class="card-overlay">
+        <div class="card-element ${card.element || ''}"></div>
+        <div class="card-power">${card.basePower || card.attack || 0}</div>
+      </div>
+    </div>
+  `;
+};
 
 if (!window.getCardById) {
   window.getCardById = function(id) {
@@ -1610,6 +2154,9 @@ class CardRenderer {
     const level = opts.level || (cardData.level || 1);
     const showUpgrade = !!opts.showUpgrade;
 
+    // картинка арты — используем глобальный helper, fallback на placeholder
+    let imgSrc = 'assets/cards/placeholder.svg';
+    try { imgSrc = (window.getCardImage ? window.getCardImage(cardData) : imgSrc) || imgSrc; } catch(e) {}
     return `
       <div class="sp-card ${element} ${rarity} ${showUpgrade ? 'upgradable' : ''}" 
            data-id="${id}"
@@ -1626,6 +2173,11 @@ class CardRenderer {
         <div class="decor-line line-top"></div>
         <div class="decor-line line-bottom"></div>
         
+        <!-- КАРТИНКА АРТУ (якщо є) -->
+        <div class="card-art-frame">
+          <img class="card-art-img" src="${imgSrc}" alt="${name}" />
+        </div>
+
         <!-- БЕЙДЖ РІДКОСТІ -->
         <div class="rarity-badge">${rarityBadge}</div>
         
@@ -2102,6 +2654,10 @@ sortSelect?.addEventListener('change', (e) => {
       result: null
     };
   };
+
+  // Контрольна точка для перевірки повноти моделі карти
+  // (hoisted implementation at file top exposes `window.assertFullCard`)
+
   window.playTurn = function(duel, playerIdx){
     if (!duel || duel.finished) return duel;
     
@@ -2780,8 +3336,10 @@ try {
             const cardData = getCardById(card.id);
             if (!cardData) return '';
             const emoji = elementEmojis[cardData.element] || '⚙';
+            const src = window.getCardImage(cardData);
             return `
               <div class="bag-card-item" data-card-id="${card.id}">
+                <img class="bag-card-img" src="${src}" alt="${cardData.name}" />
                 <span class="bag-card-emoji">${emoji}</span>
                 <span class="bag-card-name">${cardData.name}</span>
                 <span class="bag-card-status">Знайдено</span>
@@ -2823,7 +3381,9 @@ try {
           
           // Load collection cards if on collections page
           if (pageId === 'collections') {
-            this.loadCollectionCards();
+            if (typeof this.renderCollections === 'function') {
+              this.renderCollections();
+            }
           }
           
           // Load shop if on shop page
@@ -3144,13 +3704,13 @@ try {
             cores: Math.max(1, Math.ceil(displayPower / 3))
           };
 
-          // Render visual: prefer cardRenderer, then createCardView, fallback to element emoji
+          // Render visual: use CardRendererV2 (standard). Fallback to createCardView or emoji.
           let visualHtml = '';
-          if (window.cardRenderer && typeof window.cardRenderer.render === 'function') {
+          if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
             try {
-              visualHtml = window.cardRenderer.render({ ...card, power: displayPower });
+              visualHtml = window.CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: false });
             } catch (err) {
-              console.warn('cardRenderer.render failed for shop card', card.id, err);
+              console.warn('CardRendererV2.render failed for shop card', card.id, err);
               visualHtml = '';
             }
           }
@@ -3166,7 +3726,6 @@ try {
             const elementEmoji = this.getElementEmoji(card.element);
             visualHtml = `<div class="product-icon">${elementEmoji}</div>`;
           } else {
-            // wrap visual into container matching product-icon slot
             visualHtml = `<div class="product-icon">${visualHtml}</div>`;
           }
 
@@ -3620,12 +4179,22 @@ try {
             }
           }
 
+          if (!visualAppended && window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
+            try {
+              const html = window.CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: false });
+              const frag = document.createElement('div');
+              frag.innerHTML = html;
+              if (frag.firstElementChild) wrapper.appendChild(frag.firstElementChild);
+              visualAppended = true;
+            } catch (err) {
+              console.warn('CardRendererV2.render failed in pack modal', err);
+            }
+          }
           if (!visualAppended && window.cardRenderer && typeof window.cardRenderer.render === 'function') {
             try {
               const html = window.cardRenderer.render(card);
               const frag = document.createElement('div');
               frag.innerHTML = html;
-              // append first node
               if (frag.firstElementChild) wrapper.appendChild(frag.firstElementChild);
               visualAppended = true;
             } catch (err) {
@@ -3773,13 +4342,28 @@ try {
             return pb - pa;
           });
 
-          const cardsHTML = deckPairs.map(p => this.renderDeckCard(p.card, p.level, p.originalIndex)).join('');
+          const cardsHTML = deckPairs.map(p => {
+            const card = p.card;
+            return `<div class="card-wrapper" data-card-id="${card.id}">
+              ${window.CardRendererV2 && typeof window.CardRendererV2.render === 'function' ? CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: true }) : ''}
+            </div>`;
+          }).join('');
 
-          console.log('Generated HTML length:', cardsHTML.length);
           deckGrid.innerHTML = cardsHTML;
-          console.log('Cards rendered to grid (sorted ascending by power)');
-          // Ініціалізація паралаксу для карт після рендеру
           initCardParallax();
+
+          // Делегований клік по .card-wrapper
+          deckGrid.addEventListener('click', (e) => {
+            const cardEl = e.target.closest('.card-wrapper');
+            if (!cardEl) return;
+            const cardId = cardEl.dataset.cardId;
+            if (!cardId) return;
+            if (typeof this.showCardDetails === 'function') {
+              this.showCardDetails(cardId, true);
+            } else if (typeof openCardDetails === 'function') {
+              openCardDetails(cardId);
+            }
+          });
 
           // Оновити силу колоди (з урахуванням сортування)
           let totalPower = 0;
@@ -3821,11 +4405,20 @@ try {
 
             const canUpgrade = deckItem ? this.canUpgradeCard(deckItem, inventory) : false;
 
-            cardEl.addEventListener('click', (e) => {
+            // Делегуємо клік на .sp-card і .card-frame (обидва), щоб працювало у всіх режимах
+            const frame = cardEl.querySelector('.card-frame');
+            const clickHandler = (e) => {
               e.preventDefault();
+              e.stopPropagation();
               const cardId = deckItem ? deckItem.id : cardEl.getAttribute('data-card-id') || cardEl.getAttribute('data-id');
               this.showCardDetails(cardId, true, originalIndex);
-            });
+            };
+            cardEl.style.cursor = 'pointer';
+            cardEl.addEventListener('click', clickHandler);
+            if (frame) {
+              frame.style.cursor = 'pointer';
+              frame.addEventListener('click', clickHandler);
+            }
           });
         }
         
@@ -3876,7 +4469,22 @@ try {
         const canAutoLevel = canUpgrade && this.canGuaranteedLevelByBurning(profile, cardData.id);
         
         // Використовуємо CardRenderer якщо доступний
-          if (window.cardRenderer) {
+        // Prefer CardRendererV2 when available
+        if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
+          const boostedCard = { 
+            ...cardData, 
+            attack: displayPower,
+            power: displayPower,
+            stats: { ...(cardData.stats || {}), power: displayPower }
+          };
+          try {
+            const html = window.CardRendererV2.render(boostedCard, { size: 'normal', showElement: true, showPower: true });
+            return html;
+          } catch (err) {
+            console.warn('CardRendererV2.render failed for deck card', cardData.id, err);
+          }
+        }
+        if (window.cardRenderer) {
           // Передаємо атаку як актуальну силу, щоб рендер показував прокачку
           const boostedCard = { 
             ...cardData, 
@@ -3884,6 +4492,13 @@ try {
             power: displayPower,
             stats: { ...(cardData.stats || {}), power: displayPower }
           };
+          if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
+            try {
+              return window.CardRendererV2.render(boostedCard, { size: 'normal', showElement: true, showPower: true });
+            } catch (err) {
+              console.warn('CardRendererV2.render failed for deck card', cardData.id, err);
+            }
+          }
           let html = window.cardRenderer.render(boostedCard, { level: displayLevel, power: displayPower, showUpgrade: canAutoLevel, interactive: true });
           return html;
         }
@@ -3993,26 +4608,34 @@ try {
 
       // Рендер списку колекцій
       renderCollections() {
-        this.updateCollectionBonuses(); // Оновити бонуси перед рендером
-
-        const grid = document.getElementById("collectionsGrid");
+        this.updateCollectionBonuses();
+        const grid = document.getElementById('collectionsGrid');
         if (!grid) return;
-        grid.innerHTML = "";
-
-        COLLECTIONS.forEach(col => {
-          const found = col.cards.filter(id => this.playerHasCard(id)).length;
-
-          const el = document.createElement("div");
-          el.className = "collection-tile" + (found === 0 ? " locked" : "");
-          el.onclick = () => this.openCollection(col.id);
-
-          el.innerHTML = `
-            <div class="collection-cover"></div>
-            <div class="collection-name">${col.name}</div>
-            <div class="collection-progress">${found} із ${col.cards.length}</div>
+        const profile = userProfile.getProfile();
+        const inventory = profile?.inventory || {};
+        grid.innerHTML = COLLECTIONS.map(col => {
+          const owned = col.cards.filter(id => inventory[id] > 0).length;
+          const total = col.cards.length;
+          // Додаємо іконку фракції у превʼю (можна підставити шлях до зображення, якщо є)
+          const previewIcon = `<div class="collection-preview collection-preview-${col.id}"></div>`;
+          return `
+            <div class="collection-card" data-id="${col.id}">
+              ${previewIcon}
+              <div class="collection-info">
+                <div class="collection-title">${col.name}</div>
+                <div class="collection-progress">${owned} / ${total}</div>
+              </div>
+            </div>
           `;
-          grid.appendChild(el);
-        });
+        }).join('');
+
+        // Делегований клік по .collection-card
+        grid.onclick = (e) => {
+          const card = e.target.closest('.collection-card');
+          if (!card) return;
+          const collectionId = card.dataset.id;
+          this.openCollection(collectionId);
+        };
       },
 
       // Відкриття сторінки однієї колекції
@@ -4020,25 +4643,47 @@ try {
         const col = COLLECTIONS.find(c => c.id === id);
         if (!col) return;
 
-        this.showPage("collection-details");
+        // Показати нову сторінку grid-колекції
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById('page-collection-details').classList.remove('hidden');
 
-        document.getElementById("collectionTitle").textContent = col.name;
-        document.getElementById("collectionBonus").textContent =
-          "Бонус зібраної колекції: " + col.bonus.text;
+        // Оновити заголовки та прогрес
+        document.getElementById('collectionTitle').textContent = col.name;
+        const profile = userProfile.getProfile();
+        const inventory = profile?.inventory || {};
+        document.getElementById('collectionProgress').textContent = `${col.cards.filter(id => inventory[id] > 0).length} із ${col.cards.length}`;
 
-        const ownedCount = col.cards.filter(cardId => this.playerHasCard(cardId)).length;
-        document.getElementById("collectionProgress").textContent =
-          `Знайдено ${ownedCount} із ${col.cards.length} карт`;
-
-        const grid = document.getElementById("collectionCardsGrid");
+        // Рендер grid карт
+        const grid = document.getElementById('collectionCardsGrid');
         grid.innerHTML = "";
-
         col.cards.forEach(cardId => {
-          const owned = this.playerHasCard(cardId);
-          const el = document.createElement("div");
-          el.className = "collection-card " + (owned ? "owned" : "locked");
-          grid.appendChild(el);
+          const owned = inventory[cardId] > 0;
+          const card = owned && window.getCardById ? window.getCardById(cardId) : { id: cardId };
+          const wrapper = document.createElement("div");
+          wrapper.className = "card-wrapper" + (owned ? "" : " locked");
+          wrapper.dataset.cardId = cardId;
+          wrapper.innerHTML = window.CardRendererV2 && typeof window.CardRendererV2.render === 'function'
+            ? CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: true })
+            : `<img src="${owned ? window.getCardImage(cardId) : 'assets/cards/placeholder.svg'}" alt="${cardId}">`;
+          grid.appendChild(wrapper);
         });
+
+        // Делегований клік по .card-wrapper
+        grid.onclick = (e) => {
+          const cardEl = e.target.closest('.card-wrapper');
+          if (!cardEl || cardEl.classList.contains('locked')) return;
+          const cardId = cardEl.dataset.cardId;
+          if (!cardId) return;
+          if (typeof this.showCardDetails === 'function') {
+            this.showCardDetails(cardId, false, -1);
+          }
+        };
+      },
+
+      // Закриття колекції
+      closeCollection() {
+        document.getElementById("collection-view").classList.add("hidden");
+        document.getElementById("factions-grid").style.display = "grid";
       },
 
       // Відкрити магазин (тимчасова функція)
@@ -4110,8 +4755,10 @@ try {
           grid.innerHTML = cards.map(card => {
             const found = foundIds.has(card.id);
             if (found) foundCount++;
+            const src = found ? window.getCardImage(card) : 'assets/cards/placeholder.svg';
             return `
               <div class="collection-card-item${found ? ' found' : ' not-found'}">
+                <img class="collection-card-img" src="${src}" alt="${card.name}" />
                 <span class="collection-card-name">${card.name}</span>
                 <span class="collection-card-status">${found ? 'Знайдено' : 'Не знайдено'}</span>
               </div>
@@ -4209,31 +4856,36 @@ try {
         const mainDisplay = document.getElementById('card-main-info');
         if (!mainDisplay) return;
 
-        // Визуальный блок карточки — используем cardRenderer или createCardView, иначе fallback
+        // Визуальный блок карточки — используем только CardRendererV2 (новый стандарт)
         let visualHtml = '';
-        if (window.cardRenderer && typeof window.cardRenderer.render === 'function') {
-          // Передаем power & level через opts, чтобы рендерер использовал актуальную силу
-          visualHtml = window.cardRenderer.render({ ...cardData }, { level, power });
-        } else if (window.createCardView) {
+        if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
           try {
-            // Если createCardView умеет читать поле power в объекте — прокинем его
-            const el = window.createCardView({ ...cardData, power, level });
-            visualHtml = el ? el.outerHTML : '';
+            visualHtml = window.CardRendererV2.render(cardData, { size: 'details', showElement: true, showPower: true });
           } catch (err) {
-            console.warn('createCardView failed', err);
+            console.warn('CardRendererV2.render failed', err);
             visualHtml = '';
           }
+        } else {
+          console.warn('CardRendererV2 is not available; card details visual will be empty');
+          visualHtml = '';
         }
 
         if (!visualHtml) {
-          // Простой fallback визуал
-          const elem = cardData.element || '';
+          // Простой fallback визуал — новая recommended структура card-frame
+          const elem = (cardData.element || '').toString().toLowerCase();
           const shownPower = power || cardData.basePower || 0;
+          const imgSrc = window.getCardImage ? window.getCardImage(cardData) : (cardData.image || cardData.imageUrl || '');
+          const rarityClass = (cardData.rarity || 'common').toString().toLowerCase();
+
           visualHtml = `
-            <div class="sp-card large ${elem}">
-              <div class="corner-gear">${elem}</div>
-              <div class="power-plate"><div class="power-value">${shownPower}</div></div>
-              <div class="card-name">${cardData.name || ''}</div>
+            <div class="card-frame ${rarityClass} ${elem}">
+              <div class="card-art">
+                ${imgSrc ? `<img src="${imgSrc}" alt="${cardData.name || ''}">` : ''}
+              </div>
+              <div class="card-ui">
+                <div class="card-element">${getElementGlyph(elem)}</div>
+                <div class="card-power">${shownPower}</div>
+              </div>
             </div>`;
         }
 
@@ -4244,14 +4896,14 @@ try {
         const xpText = `${prog.xp || 0} / ${need} XP`;
 
         mainDisplay.innerHTML = `
-          <div style="display:flex; gap:14px; align-items:flex-start;">
-            <div class="card-visual-area">${visualHtml}</div>
-            <div class="card-meta" style="flex:1">
-              <div class="card-meta-name" style="font-size:18px; font-weight:700; margin-bottom:6px">${cardData.name || ''}</div>
-              <div class="card-meta-row">Стихія: <strong>${(cardData.element || '').toUpperCase()}</strong></div>
-              <div class="card-meta-row">Рідкість: <strong>${cardData.rarity || ''}</strong></div>
-              <div class="card-meta-row" style="margin-top:8px">Рівень: <span id="cu-level-inner">${levelText}</span></div>
-              <div class="card-meta-row">XP: <span id="cu-xp-text-inner">${xpText}</span></div>
+          <div class="card-details-layout">
+            <div class="card-details-card card-visual-area">${visualHtml}</div>
+            <div class="card-details-text">
+              <h3>${cardData.name || ''}</h3>
+              <p>Стихія: <strong>${(cardData.element || '').toUpperCase()}</strong></p>
+              <p>Рідкість: <strong>${cardData.rarity || ''}</strong></p>
+              <p>Рівень: <span id="cu-level-inner">${levelText}</span></p>
+              <p>XP: <span id="cu-xp-text-inner">${xpText}</span></p>
             </div>
           </div>`;
 
@@ -4344,14 +4996,21 @@ try {
             const xpGain = cardPower || 10;
             const pct = Math.max(0, Math.min(100, Math.round((xpGain / need) * 100)));
 
-            // Рендер через cardRenderer если доступен
+            // Render via CardRendererV2 if available, else createCardView, else minimal fallback
             let cardHtml = '';
-            if (window.cardRenderer && typeof window.cardRenderer.render === 'function') {
-              cardHtml = window.cardRenderer.render({ ...card, power: cardPower });
-            } else if (window.createCardView) {
+            if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
+              try {
+                cardHtml = window.CardRendererV2.render({ ...card, power: cardPower }, { size: 'normal', showElement: true, showPower: true });
+              } catch (err) {
+                console.warn('CardRendererV2.render failed for weaker card', card.id, err);
+                cardHtml = '';
+              }
+            }
+            if (!cardHtml && window.createCardView) {
               const el = window.createCardView(card);
               cardHtml = el ? el.outerHTML : '';
-            } else {
+            }
+            if (!cardHtml) {
               // fallback минимальный визуал
               cardHtml = `
                 <div class="sp-card ${card.element || ''}">
@@ -4548,11 +5207,33 @@ try {
       buildDuelDeckFromProfile(profile) {
         // Використовуємо level з progress для розрахунку сили в дуелі
         return profile.deckCards.map(dc => {
-          const card = getCardById(dc.cardId || dc.id);
+          const base = getCardById(dc.cardId || dc.id);
+          if (!base) {
+            // Fallback для невідомих карт
+            return {
+              id: dc.cardId || dc.id || 'unknown',
+              element: 'fire',
+              rarity: 'common',
+              basePower: 10,
+              upgradeMult: 1.12,
+              name: 'Unknown Card',
+              level: dc.level || 1,
+              power: 10,
+              attack: 10,
+              image: `assets/cards/${String(dc.cardId || dc.id || 'unknown')}.png`
+            };
+          }
+
           const prog = window.getProgress ? window.getProgress(profile, dc.cardId || dc.id) : { level: 1, xp: 0 };
-          const cardLevel = prog.level;
-          const power = window.getPower ? window.getPower(card, cardLevel) : Math.round(card.basePower * Math.pow(card.upgradeMult, cardLevel - 1));
-          return { id: card.id, element: card.element, rarity: card.rarity, power };
+          const level = prog.level;
+          const power = window.getPower ? window.getPower(base, level) : Math.round(base.basePower * Math.pow(base.upgradeMult, level - 1));
+          return {
+            ...base,
+            level,
+            power,
+            attack: power,
+            image: base.image || window.getCardImage?.(base)
+          };
         });
       },
 
@@ -4661,6 +5342,27 @@ try {
         el.className = `sp-card ${card.element} ${card.rarity || 'common'}`;
         el.dataset.rarity = card.rarity || 'common';
         if (slotIdx !== undefined) el.dataset.slot = slotIdx;
+
+
+        // Завжди CardRendererV2 як у колоді — повертаємо саме `.card-frame`, без додаткового wrapper
+        if (window.CardRendererV2 && typeof window.CardRendererV2.render === 'function') {
+          const html = window.CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: true }) || '';
+          const tmp = document.createElement('div');
+          tmp.innerHTML = html.trim();
+
+          const node = tmp.firstElementChild;
+          if (!node) return el;
+
+          // зберегти слот індекс для логіки кліків/ударів
+          if (slotIdx !== undefined) node.dataset.slot = slotIdx;
+
+          // помітка для стилів саме в дуелі
+          node.classList.add('duel-card');
+
+          return node;
+        }
+
+        // Legacy minimal card view if nothing else available
         // Use card's own power if present, fallback to calculation by id/level
         let displayPower = 0;
         try {
@@ -4785,6 +5487,7 @@ try {
 
         // Render enemy visible hand (3 cards on field). fullNine is kept for HP calculation only.
         (duel.enemy.hand || []).forEach((c, idx) => {
+          window.assertFullCard(c, 'duel-enemy');
           const node = this.createCardNode(c, false, idx);
           enemyHandEl.appendChild(node);
         });
@@ -4800,8 +5503,14 @@ try {
 
         // Render player hand (click to play)
         duel.player.hand.forEach((c, idx) => {
+          window.assertFullCard(c, 'duel-player');
           const node = this.createCardNode(c, true, idx);
-          node.addEventListener('click', () => {
+          // Делегуємо клік на .card-frame, якщо вона є, інакше на весь node
+          const frame = node.querySelector('.card-frame');
+          const clickTarget = frame || node;
+          clickTarget.style.cursor = 'pointer';
+          clickTarget.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (duel.finished || duelAnimLock) return;
 
             const defenderCard = duel.enemy.hand[idx];
@@ -5310,6 +6019,9 @@ function stopDuelSearchAnimation() {
   const overlay = document.getElementById('duelSearchOverlay');
   if (overlay) overlay.classList.add('hidden');
 
+  // FIX: гарантовано повертаємо кліки
+  document.body.classList.remove('duel-locked', 'duel-anim-lock');
+
   if (duelDotsTimer) {
     clearInterval(duelDotsTimer);
     duelDotsTimer = null;
@@ -5611,6 +6323,8 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
   window.addPassive = function (el, event, handler) {
     el.addEventListener(event, handler, { passive: true });
   };
+
+  window.closeCollection = navigation.closeCollection;
 })();
 
 /* ===== Click delegation helper (optional) =====

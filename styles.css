@@ -1,3 +1,387 @@
+.collection-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5em;
+  color: #f2d07a;
+  opacity: 0.7;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.9));
+}
+/* Приклад для різних фракцій (можна підставити background-image або emoji) */
+.collection-preview-f01::before { content: '🔥'; }
+.collection-preview-f02::before { content: '⚔️'; }
+.collection-preview-f03::before { content: '⚡'; }
+.collection-preview-f04::before { content: '🐉'; }
+.collection-preview-f05::before { content: '🔮'; }
+.collection-preview-f06::before { content: '🌋'; }
+.collection-preview-f07::before { content: '🛡️'; }
+.collection-preview-f08::before { content: '🌊'; }
+.collection-preview-f09::before { content: '🦅'; }
+.collection-preview-f10::before { content: '🌑'; }
+/* =========================
+   COLLECTIONS GRID
+   ========================= */
+
+.collections-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 12px;
+}
+
+/* одна колекція = картка */
+.collection-card{
+  position: relative;
+  aspect-ratio: 1 / 1.25;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at top,
+      rgba(255,210,120,.18),
+      rgba(0,0,0,.85)
+    );
+  border: 1px solid rgba(242,208,122,.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,.7);
+}
+
+/* превʼю (поки без арта) */
+.collection-preview{
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(0,0,0,.2),
+      rgba(0,0,0,.9)
+    );
+}
+
+/* нижня панель */
+.collection-info{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.85),
+    rgba(0,0,0,0)
+  );
+}
+
+.collection-title{
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.collection-progress{
+  font-size: 12px;
+  opacity: .8;
+  margin-top: 2px;
+}
+
+/* hover */
+.collection-card:hover{
+  transform: translateY(-3px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.9),
+    0 0 14px rgba(242,208,122,.25);
+}
+.collection-view { display: none !important; }
+/* =========================
+   CARD FRAME CONTAINER & UI
+   ========================= */
+.card-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-frame .card-gear {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 5;
+  margin: 0;
+}
+
+.card-frame .card-power {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.card-frame * {
+  box-sizing: border-box;
+}
+/* =========================
+   CARD DETAILS CONTAINER
+   ========================= */
+#card-main-info{
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg,#2a1c12,#0b0704);
+  border: 1px solid rgba(242,208,122,.25);
+}
+
+.card-details-layout{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+  max-width: 100%;
+}
+
+.card-details-card{
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.card-details-text{
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.card-details-text h3,
+.card-details-text p{
+  margin: 0 0 6px;
+}
+/* =========================
+   CARD — DETAILS VIEW
+   ========================= */
+.card-frame.details{
+  width: 220px;
+  aspect-ratio: 3 / 4.6;
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.card-frame.details .card-art{
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top,
+      rgba(255,210,120,.18),
+      rgba(0,0,0,.85)
+    );
+}
+
+.card-details-layout{
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+/* Placeholder для карти без арта */
+.card-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #f2d07a;
+  background: radial-gradient(circle at 60% 30%, #2a1c12 60%, #0b0704 100%);
+  opacity: 0.85;
+}
+/* =========================
+   CARD DETAILS VISUAL
+   ========================= */
+.card-visual-area {
+  min-width: 180px;
+  max-width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.card-frame.large {
+  width: 200px;
+  min-width: 180px;
+  max-width: 220px;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 20px;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.85),
+    0 0 24px rgba(242,208,122,.18);
+}
+/* === CARD SIZE VARIABLES === */
+:root{
+  --deck-card-width: 150px;
+  --deck-card-radius: 16px;
+}
+/* =========================
+   REAL CARD FRAME (DECK)
+   ========================= */
+
+.card-wrapper{
+  position: relative;
+}
+
+.card-frame{
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 16px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg,#2a1c12,#0b0704);
+  border: 2px solid rgba(242,208,122,.35);
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+
+.card-frame:hover{
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.9),
+    0 0 18px rgba(242,208,122,.25);
+}
+/* ================================
+   FINAL FIX: Deck cards clickable
+   ================================ */
+
+/* grid повинен бути під картами */
+.deck-grid,
+#deckGrid {
+.deck-grid,
+#deckGrid {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: repeat(3, minmax(var(--deck-card-width), 1fr));
+  gap: 6px;
+}
+
+/* КАРТИ В БОЙОВІЙ КОЛОДІ */
+.deck-grid .card-frame{
+  width: var(--deck-card-width);
+  aspect-ratio: 3 / 4.4;
+  border-radius: var(--deck-card-radius);
+}
+}
+
+/* КАРТА = РЕАЛЬНИЙ КЛІКАБЕЛЬНИЙ БЛОК */
+.deck-grid .sp-card,
+.deck-grid .card-frame {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4.4;   /* ОБОВʼЯЗКОВО */
+  min-height: 140px;
+
+  background: linear-gradient(180deg,#2a1c12,#0b0704);
+  border-radius: 14px;
+
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ВНУТРІШНІ ЕЛЕМЕНТИ НЕ ЛАМАЮТЬ КЛІК */
+.deck-grid .sp-card *,
+.deck-grid .card-frame * {
+  pointer-events: none;
+}
+
+/* підказка і панелі не блокують */
+#deck-hint,
+.hint,
+.panel.subtle {
+  pointer-events: none !important;
+}
+/* === FIX: cards must be clickable === */
+#deckGrid,
+.deck-grid {
+  position: relative;
+  z-index: 20; /* вище panel */
+}
+
+#deckGrid .sp-card,
+#deckGrid .card-frame {
+  position: relative;
+  z-index: 21;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* hint must not block clicks */
+#deck-hint,
+.hint,
+.panel.subtle {
+  pointer-events: none;
+}
+/* ======================
+   GEAR WITH ELEMENT
+   ====================== */
+.card-gear{
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    conic-gradient(
+      #c59b3c 0deg 20deg,
+      #7a5520 20deg 40deg,
+      #c59b3c 40deg 60deg,
+      #7a5520 60deg 80deg,
+      #c59b3c 80deg 100deg,
+      #7a5520 100deg 120deg,
+      #c59b3c 120deg 140deg,
+      #7a5520 140deg 160deg,
+      #c59b3c 160deg 180deg,
+      #7a5520 180deg 200deg,
+      #c59b3c 200deg 220deg,
+      #7a5520 220deg 240deg,
+      #c59b3c 240deg 260deg,
+      #7a5520 260deg 280deg,
+      #c59b3c 280deg 300deg,
+      #7a5520 300deg 320deg,
+      #c59b3c 320deg 340deg,
+      #7a5520 340deg 360deg
+    );
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,.7),
+    inset 0 0 8px rgba(0,0,0,.8),
+    0 0 10px rgba(0,0,0,.8);
+  animation: gear-spin 12s linear infinite;
+}
+.card-gear::before{
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at top,#2a1c12,#0a0603);
+  box-shadow:
+    inset 0 0 6px rgba(0,0,0,.9),
+    inset 0 0 0 1px rgba(242,208,122,.35);
+}
+.gear-element{
+  position: relative;
+  z-index: 2;
+  font-size: 18px;
+  filter:
+    drop-shadow(0 0 6px rgba(0,0,0,.9));
+}
+.card-gear.fire  { box-shadow: 0 0 12px rgba(255,120,60,.6); }
+.card-gear.water { box-shadow: 0 0 12px rgba(80,160,255,.6); }
+.card-gear.air   { box-shadow: 0 0 12px rgba(180,220,255,.6); }
+.card-gear.earth { box-shadow: 0 0 12px rgba(160,140,90,.6); }
+@keyframes gear-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@media (hover:none) {
+  .card-gear { animation: none; }
+}
 /* =========================================================
    PATCH: HUD XP = ONLY BAR (no text/labels)
    ========================================================= */
@@ -156,6 +540,82 @@
   pointer-events: none;
   box-shadow: 0 2px 8px #0005;
 }
+
+/* ===== Card art + UI overlay (per spec) ===== */
+.card {
+  position: relative;
+  width: 140px;
+  height: 190px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: transparent; /* removed fill — use artwork image */
+  box-shadow: 0 0 12px rgba(0,0,0,.45);
+}
+
+.card-art {
+  position: absolute;
+  inset: 0;
+}
+
+.card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: none; /* remove overlay so art shows clearly */
+}
+
+.card-overlay {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+}
+
+.card-element {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+}
+.card-element.fire { background: linear-gradient(135deg,#c45a2a,#ff7a3a); }
+.card-element.water { background: linear-gradient(135deg,#3b6c8e,#4fb0e0); }
+.card-element.air { background: linear-gradient(135deg,#9fb6c1,#cfe6ef); }
+.card-element.earth { background: linear-gradient(135deg,#7a6a3a,#b39b5a); }
+
+.card-power {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-weight: 700;
+  color: #ffd27a;
+  font-size: 16px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* Card details visual image */
+.card-visual-area img.card-visual-img {
+  width: 120px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  margin-right: 12px;
+}
+
+.card-visual-area .sp-card.large {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 /* 🎴 СТИМПАНК СТИЛЬ КАРТ - ДЕТАЛЬНИЙ ДИЗАЙН */
 
 :root {
@@ -288,6 +748,8 @@
   overflow: hidden;                /* stabilizes iOS scrolling */
   contain: layout paint;           /* prevent relayout jank */
   transform: translateZ(0);
+  cursor: pointer;
+  z-index: 1;
 }
 
 #deckGrid .sp-card::before,
@@ -2107,35 +2569,53 @@ button.remove-from-deck {
       font-size: 13px;
     }
 
-    .collection-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 10px;
-    }
 
-    .collection-card {
-      aspect-ratio: 2 / 3;
-      background: #222;
-      border-radius: 6px;
-      filter: grayscale(1);
-      position: relative;
-    }
+.collection-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 10px;
+}
 
-    .collection-card.owned {
-      filter: none;
-      box-shadow: 0 0 8px rgba(0,255,120,0.3);
-    }
-
-    .collection-card.locked::after {
-      content: "🔒";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
+.collection-cards-grid .card-wrapper {
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.collection-cards-grid .card-wrapper.locked {
+  filter: grayscale(1) brightness(0.7);
+  cursor: default;
+  pointer-events: none;
+  position: relative;
+}
+.collection-cards-grid .card-wrapper.locked::after {
+  content: "🔒";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2em;
+  color: #fff8;
+  z-index: 10;
+  pointer-events: none;
+}
+.collection-cards-grid .card-wrapper:not(.locked):hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 10px 24px rgba(0,0,0,.18), 0 0 12px #f2d07a44;
+  z-index: 2;
+}
+.collection-cards-grid .card-frame {
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  border-radius: var(--deck-card-radius, 16px);
+  box-shadow: none;
+}
 
     /* Upgrade hint styling */
     .hint {
@@ -4031,17 +4511,18 @@ button.remove-from-deck {
     }
 
     /* Deck Grid 3x3 */
-    .deck-grid {
+    #deckGrid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 16px;
-      align-items: start;
+      grid-template-rows: repeat(3, 1fr);
       justify-items: center;
+      align-items: center;
+      margin: 0 auto;
+      width: 420px;
+      height: 600px;
+      gap: 18px 24px; /* вертикальний і горизонтальний відступ між картками */
+      /* ...інші властивості... */
     }
-
-    /* Карти в колоді використовують стилі з steampunk-cards.css */
-
 
     /* ===== DUEL SCREEN ===== */
     .duel-header {
@@ -4655,6 +5136,10 @@ button.remove-from-deck {
 
 /* (опціонально) курсор "заблоковано" */
 body.duel-locked .sp-card{
+/* блокувати кліки тільки у дуелі, а не у колоді/магазині */
+body.duel-locked #page-duel .sp-card,
+body.duel-locked .duel-arena .sp-card,
+body.duel-locked .duel-deck .sp-card {
   pointer-events: none;
   cursor: default;
 }
@@ -4777,7 +5262,12 @@ body.duel-locked .sp-card{
     0 0 20px rgba(255, 0, 0, 0.6),
     0 0 30px rgba(255, 0, 0, 0.4);
   z-index: 1000;
+body.duel-anim-lock #page-duel .sp-card,
+body.duel-anim-lock #page-duel button,
+body.duel-anim-lock .duel-arena .sp-card,
+body.duel-anim-lock .duel-arena button {
   pointer-events: none;
+}
   animation: damageNumber 1s ease-out forwards;
 }
 
@@ -4998,25 +5488,385 @@ body.duel-anim-lock button{
   opacity: 0.45;
 }
 
-/* ===== PERF PATCH (mobile) ===== */
-@media (max-width: 520px) {
-  /* прибрати важкі ефекти на масі карт */
-  .card, .sp-card, .shop-card, .deck-card {
-    box-shadow: none !important;
-    filter: none !important;
-  }
-
-  /* якщо десь використовуєте backdrop-filter — на мобільному краще вимкнути */
-  .modal, .panel, .hud {
-    backdrop-filter: none !important;
-  }
+/* ===== FACTIONS GRID ===== */
+.factions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 40 плиток */
+  gap: 14px;
+  padding: 16px;
 }
 
-/* Підказка браузеру: анімації тільки через transform/opacity */
-.card, .sp-card, .deck-card {
-  will-change: transform, opacity;
-  transform: translateZ(0);
+.faction-tile {
+  background: #111;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
-/* Рекомендуємо: використовуйте uiSetText()/uiToggleClass() замість прямого .textContent/.classList.toggle */
+.faction-tile:hover {
+  transform: scale(1.03);
+}
+
+.faction-image {
+  height: 110px;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(30%);
+}
+
+.faction-info {
+  padding: 8px;
+}
+
+.faction-name {
+  font-size: 14px;
+}
+
+.faction-progress {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* ===== COLLECTION CARD (LIST OF COLLECTIONS) ===== */
+.collections-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.collection-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg,#2a1c12,#0b0704);
+  border: 1px solid rgba(242,208,122,.25);
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.12s;
+  display: block;
+}
+
+.collection-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 16px rgba(242,208,122,.12);
+  transform: translateY(-3px);
+}
+
+.collection-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #f6e3b2;
+}
+
+.collection-progress {
+  font-size: 13px;
+  opacity: .9;
+  margin-bottom: 8px;
+  color: #e9d7a3;
+}
+
+.collection-bar {
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.06);
+  overflow: hidden;
+}
+
+.collection-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg,#f2d07a,#ffb84a);
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+@media(min-width:900px){
+  .collections-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== COLLECTION VIEW ===== */
+.collection-view {
+  padding: 16px;
+}
+
+.collection-view.hidden {
+  display: none;
+}
+
+.collection-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #7fd0ff;
+  cursor: pointer;
+}
+
+/* ===== CARDS GRID ===== */
+.collection-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.card-tile {
+  aspect-ratio: 3 / 4;
+  background: #111;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.card-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-tile.locked {
+  filter: grayscale(100%);
+  opacity: 0.3;
+}
+
+
+/* =========================
+   CARD ART INSIDE FRAME
+   ========================= */
+
+.sp-card {
+  position: relative;
+  overflow: hidden; /* 🔒 все всередині рамки */
+}
+
+.card-art-frame {
+  position: absolute;
+  inset: 22px;              /* відступ від металевої рамки */
+  border-radius: 12px;
+  overflow: hidden;         /* 🔥 обрізає картинку */
+  z-index: 3;
+
+  background: radial-gradient(
+    circle at top,
+    rgba(255,220,140,.12),
+    rgba(0,0,0,.85)
+  );
+
+  box-shadow:
+    inset 0 0 18px rgba(0,0,0,.9),
+    inset 0 0 0 2px rgba(242,208,122,.25);
+}
+
+.card-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* 🔥 заповнює рамку */
+  display: block;
+}
+
+/* =========================================
+   CARD ART: вписати картинку в рамку sp-card
+   (працює і для CardRenderer, і для fallback)
+   ========================================= */
+
+/* базове: карта має обрізати все всередині */
+.sp-card{
+  position: relative;
+  overflow: hidden;
+}
+
+/* 1) Варіант CardRenderer: .card-art > img */
+.sp-card .card-art{
+  position: absolute;
+  inset: 18px;              /* підганяй: 16–22px під твій металевий бордер */
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 3;               /* вище декоративних шарів */
+  box-shadow:
+    inset 0 0 0 2px rgba(242,208,122,.18),
+    inset 0 0 18px rgba(0,0,0,.75);
+}
+
+.sp-card .card-art img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* 2) Fallback у деталях: img.card-visual-img прямо в .sp-card */
+.sp-card > img.card-visual-img{
+  position: absolute;
+  inset: 18px;
+  width: auto;              /* перекриваємо можливі старі правила */
+  height: auto;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  z-index: 3;
+  margin: 0 !important;     /* прибирає зміщення */
+}
+
+/* 3) Щоб UI (шестерня/сила/бейдж) був поверх арта */
+.sp-card .corner-gear,
+.sp-card .power-plate,
+.sp-card .rarity-badge,
+.sp-card .upgrade-arrow{
+  position: relative;
+  z-index: 6;
+}
+
+/* EOF: патч для арта */
+
+/* ======================
+   NEW: SIMPLE CARD FRAME MODEL (recommended)
+   ====================== */
+
+/* ======================
+   CARD FRAME (BASE)
+   ====================== */
+.card-frame{
+  position: relative;
+  width: 140px;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 16px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg,#3a2a14,#120a04);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.9),
+    inset 0 0 0 2px rgba(242,208,122,.35);
+}
+
+/* rarity */
+.card-frame.common{ border: 2px solid #b8a27b; }
+.card-frame.rare{   border: 2px solid #3fbf6f; }
+.card-frame.epic{   border: 2px solid #8a5ccf; }
+.card-frame.legend{ border: 2px solid #ffd83a; }
+.card-frame.mythic{ border: 2px solid #c92a2a; }
+
+/* ======================
+   ART AREA
+   ====================== */
+.card-art{
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.card-art img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ======================
+   UI OVERLAY
+   ====================== */
+.card-ui{
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+}
+
+.card-element{
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 20px;
+}
+
+.card-power{
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,.7);
+  color: #f2d07a;
+  font-weight: 700;
+}
+
+/* small-screen scaling */
+@media (max-width:420px){
+  .card-frame{ width: 110px; }
+  .card-element{ font-size: 16px; }
+  .card-power{ font-size: 14px; padding:3px 8px; }
+}
+
+/* End of simple model */
+
+/* ======================
+   CARD FRAME v2
+   ====================== */
+
+.card-frame{
+  position: relative;
+  width: 140px;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 18px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg,#2a1c12,#0b0704);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.85),
+    inset 0 0 0 2px rgba(242,208,122,.35);
+}
+
+.card-frame.large{
+  width: 180px;
+}
+
+/* rarity */
+.card-frame.common { border: 2px solid #b8a27b; }
+.card-frame.rare   { border: 2px solid #3fbf6f; }
+.card-frame.epic   { border: 2px solid #8a5ccf; }
+.card-frame.legend { border: 2px solid #ffd83a; }
+
+/* ART */
+.card-art{
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(circle at top,#3a2a14,#050302);
+}
+
+.card-art img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* UI */
+.card-ui{
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+}
+
+.card-element{
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 22px;
+}
+
+.card-power{
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,.7);
+  color: #f2d07a;
+  font-weight: 700;
+}
+
+/* End CARD FRAME v2 */
 
