@@ -4252,12 +4252,22 @@ try {
         el.className = `sp-card ${card.element} ${card.rarity || 'common'}`;
         el.dataset.rarity = card.rarity || 'common';
         if (slotIdx !== undefined) el.dataset.slot = slotIdx;
-        
+        // Use card's own power if present, fallback to calculation by id/level
+        let displayPower = 0;
+        try {
+          if (card && typeof card.power === 'number' && !isNaN(card.power)) displayPower = Math.round(card.power);
+          else {
+            const src = (card && card.id) ? (window.getCardById ? window.getCardById(card.id) : getCardById(card.id)) : null;
+            const lvl = (card && card.level) ? card.level : 1;
+            displayPower = src ? (window.getPower ? window.getPower(src, lvl) : getPower(src, lvl)) : (card && card.basePower ? card.basePower : 12);
+          }
+        } catch (e) { displayPower = (card && card.power) || 12; }
+
         el.innerHTML = `
           <div class="corner-gear">
             ${elementIcon}
           </div>
-          <div class="power-plate"><div class="power-value">${card.power}</div></div>
+          <div class="power-plate"><div class="power-value">${displayPower}</div></div>
         `;
         return el;
       },
@@ -4370,6 +4380,14 @@ try {
           const node = this.createCardNode(c, false, idx);
           enemyHandEl.appendChild(node);
         });
+
+        // Diagnostic: ensure per-card powers sum to enemy maxHp
+        try {
+          const enemySum = duel.enemy.hand.reduce((s, cc) => s + (cc.power || 0), 0);
+          if (enemySum !== duel.enemy.maxHp) {
+            console.warn('ENEMY POWER MISMATCH', { enemySum, maxHp: duel.enemy.maxHp, hand: duel.enemy.hand });
+          }
+        } catch (e) {}
 
         // Render player hand (click to play)
         duel.player.hand.forEach((c, idx) => {
