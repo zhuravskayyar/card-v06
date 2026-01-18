@@ -2708,8 +2708,8 @@ sortSelect?.addEventListener('change', (e) => {
 
 // ===== REAL ONLINE COUNTER (Supabase Presence, no user token) =====
 (function setupOnlineCounter() {
-  const SUPABASE_URL = localStorage.getItem('supabase_url') || 'PASTE_YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = localStorage.getItem('supabase_anon') || 'PASTE_YOUR_SUPABASE_ANON_KEY';
+  const SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://jlvpekwbayaelscexzjf.supabase.co';
+  const SUPABASE_ANON_KEY = localStorage.getItem('supabase_anon') || 'sb_publishable_AD-y_HyetexKjT9RZig42w_7lmxzl0t';
 
   const CHANNEL_NAME = 'presence:lobby';
 
