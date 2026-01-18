@@ -5870,3 +5870,45 @@ body.duel-anim-lock button{
 
 /* End CARD FRAME v2 */
 
+/* ===== MENU FOOTER ===== */
+.menu-screen,
+#main-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-footer {
+  /* CENTER MENU FOOTER */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ГОРИЗОНТАЛЬНЕ центрування */
+  text-align: center;
+  margin-top: auto;
+}
+
+.menu-footer-row {
+  display: flex;
+  justify-content: center; /* центрує рядок */
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+}
+
+.menu-footer a {
+  color: #8fd3ff;
+  text-decoration: none;
+}
+
+.menu-footer a:hover {
+  text-decoration: underline;
+}
+
+.menu-footer span {
+  margin: 0 4px;
+}
+
+.menu-footer .muted {
+  color: #7a93a8;
+}
+

@@ -6529,3 +6529,38 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
     }
   }, { passive: true });
 })();
+
+// ===== FAKE ONLINE COUNTER (GitHub Pages friendly) =====
+(function onlineCounter() {
+  const KEY = 'online-heartbeats';
+  const TTL = 15000; // 15 сек
+  const id = Math.random().toString(36).slice(2);
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function save(data) {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  }
+
+  function tick() {
+    const now = Date.now();
+    const data = load();
+    data[id] = now;
+
+    // чистимо старі
+    for (const k in data) {
+      if (now - data[k] > TTL) delete data[k];
+    }
+
+    save(data);
+
+    const el = document.getElementById('online-count');
+    if (el) el.textContent = Object.keys(data).length;
+  }
+
+  tick();
+  setInterval(tick, 5000);
+})();
