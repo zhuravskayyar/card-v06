@@ -2706,6 +2706,63 @@ sortSelect?.addEventListener('change', (e) => {
   };
 })();
 
+// ===== REAL ONLINE COUNTER (Supabase Presence, no user token) =====
+(function setupOnlineCounter() {
+  const SUPABASE_URL = localStorage.getItem('supabase_url') || 'PASTE_YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = localStorage.getItem('supabase_anon') || 'PASTE_YOUR_SUPABASE_ANON_KEY';
+
+  const CHANNEL_NAME = 'presence:lobby';
+
+  const clientId =
+    localStorage.getItem('client_id') || (localStorage.setItem('client_id', (crypto.randomUUID?.() || String(Math.random()).slice(2))), localStorage.getItem('client_id'));
+
+  const onlineElId = 'online-count';
+
+  function renderCount(n) {
+    const el = document.getElementById(onlineElId);
+    if (el) el.textContent = String(n);
+  }
+
+  // no-op if supabase not loaded or keys missing
+  if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'PASTE_YOUR_SUPABASE_URL') {
+    console.info('Supabase presence disabled — set supabase_url and supabase_anon in localStorage to enable.');
+    return;
+  }
+
+  try {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const channel = supabase.channel(CHANNEL_NAME, {
+      config: { presence: { key: clientId } }
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      try {
+        const state = channel.presenceState() || {};
+        const count = Object.keys(state).length;
+        renderCount(count);
+      } catch (e) { renderCount(0); }
+    });
+
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        try { channel.track({ t: Date.now(), page: location.pathname }); } catch (_) {}
+      }
+    });
+
+    // periodic re-track to keep presence alive
+    setInterval(() => {
+      try { channel.track({ t: Date.now() }); } catch (_) {}
+    }, 15000);
+
+    console.info('Supabase presence initialized for', CHANNEL_NAME);
+  } catch (e) {
+    console.warn('Supabase presence init failed', e);
+    renderCount(0);
+  }
+
+})();
+
 
 /* ===== js/game/duel_runtime.js ===== */
 // Runtime duel engine for index.html usage (global functions)
