@@ -6564,3 +6564,89 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
   tick();
   setInterval(tick, 5000);
 })();
+
+// ===== REAL ONLINE VIA GIST (GitHub Pages) =====
+(function gistOnlineCounter() {
+  const DEFAULT_GIST = localStorage.getItem('gh_gist_id') || 'YOUR_GIST_ID';
+  const FILE = 'online.json';
+  const TOKEN = localStorage.getItem('gh_gist_token') || 'YOUR_GITHUB_TOKEN';
+  const TTL_MS = 30000;     // who didn't ping in 30s => offline
+  const PING_EVERY = 12000; // ping every 12s
+
+  const clientId =
+    localStorage.getItem('client_id') || (localStorage.setItem('client_id', crypto.randomUUID()), localStorage.getItem('client_id'));
+
+  async function ghFetch(url, opts = {}) {
+    const headers = {
+      'Accept': 'application/vnd.github+json',
+      ...(opts.headers || {})
+    };
+    if (TOKEN && TOKEN !== 'YOUR_GITHUB_TOKEN') headers['Authorization'] = `Bearer ${TOKEN}`;
+    return fetch(url, { ...opts, headers });
+  }
+
+  async function readGist(gistId) {
+    const res = await ghFetch(`https://api.github.com/gists/${gistId}`);
+    if (!res.ok) throw new Error('Gist read failed');
+    const data = await res.json();
+    const content = data.files?.[FILE]?.content || `{"v":1,"users":{}}`;
+    return JSON.parse(content);
+  }
+
+  async function writeGist(gistId, obj) {
+    const res = await ghFetch(`https://api.github.com/gists/${gistId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ files: { [FILE]: { content: JSON.stringify(obj) } } })
+    });
+    if (!res.ok) throw new Error('Gist write failed');
+  }
+
+  function render(n) {
+    const el = document.getElementById('online-count');
+    if (el) el.textContent = String(n);
+  }
+
+  async function ping() {
+    const gistId = localStorage.getItem('gh_gist_id') || DEFAULT_GIST;
+    if (!gistId || gistId === 'YOUR_GIST_ID') {
+      // no gist configured — fallback to fake counter
+      return;
+    }
+
+    try {
+      const now = Date.now();
+      const state = await readGist(gistId);
+      state.v = 1;
+      state.users = state.users || {};
+
+      // update self
+      state.users[clientId] = now;
+
+      // cleanup
+      for (const [k, t] of Object.entries(state.users)) {
+        if (now - Number(t) > TTL_MS) delete state.users[k];
+      }
+
+      // write back (requires TOKEN with gist write permission)
+      await writeGist(gistId, state);
+
+      render(Object.keys(state.users).length);
+    } catch (e) {
+      // silent: if no token or network error, show 0
+      render(0);
+      // console.debug('Gist online error', e);
+    }
+  }
+
+  // initial ping and timer
+  ping();
+  const t = setInterval(ping, PING_EVERY);
+  window.addEventListener('beforeunload', () => clearInterval(t));
+
+  // Quick console instructions
+  console.info('Gist online counter loaded. To enable real gist-based counter:' +
+    '\n1) Create a public or secret gist containing file "online.json" with { "v":1, "users": {} }' +
+    '\n2) save gist id in localStorage: localStorage.setItem("gh_gist_id","<GIST_ID>")' +
+    '\n3) save a personal token (Gists: Read/Write) in localStorage: localStorage.setItem("gh_gist_token","<TOKEN>")' +
+    '\nAfter that the counter will attempt to PATCH the gist every ~12s.');
+})();
