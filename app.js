@@ -6643,10 +6643,60 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
   const t = setInterval(ping, PING_EVERY);
   window.addEventListener('beforeunload', () => clearInterval(t));
 
+  // expose ping and simple setter for manual calls
+  window.gistOnlinePing = ping;
+  window.gistOnlineSet = function (gistId, token) {
+    if (!gistId) {
+      localStorage.removeItem('gh_gist_id');
+      localStorage.removeItem('gh_gist_token');
+      return;
+    }
+    localStorage.setItem('gh_gist_id', gistId);
+    if (token) localStorage.setItem('gh_gist_token', token);
+    else localStorage.removeItem('gh_gist_token');
+    try { ping(); } catch (e) { /* ignore */ }
+  };
+
   // Quick console instructions
   console.info('Gist online counter loaded. To enable real gist-based counter:' +
     '\n1) Create a public or secret gist containing file "online.json" with { "v":1, "users": {} }' +
     '\n2) save gist id in localStorage: localStorage.setItem("gh_gist_id","<GIST_ID>")' +
     '\n3) save a personal token (Gists: Read/Write) in localStorage: localStorage.setItem("gh_gist_token","<TOKEN>")' +
     '\nAfter that the counter will attempt to PATCH the gist every ~12s.');
+})();
+
+// Expose helper to open a quick prompt-based setup from UI
+(function exposeGistHelpers() {
+  function openSetupPrompt() {
+    const currentGist = localStorage.getItem('gh_gist_id') || '';
+    const currentToken = localStorage.getItem('gh_gist_token') || '';
+    const gist = prompt('Введіть Gist ID для online.json (порожньо — відключити):', currentGist);
+    if (gist === null) return; // cancelled
+    if (gist.trim() === '') {
+      localStorage.removeItem('gh_gist_id');
+      localStorage.removeItem('gh_gist_token');
+      alert('Gist відключено. Лічильник повернеться до локального режиму.');
+      return;
+    }
+    const token = prompt('Введіть GitHub token (Gists: Read/Write). Можна залишити порожнім для лише читання:', currentToken);
+    if (token === null) return;
+    localStorage.setItem('gh_gist_id', gist.trim());
+    if (token.trim()) localStorage.setItem('gh_gist_token', token.trim());
+    else localStorage.removeItem('gh_gist_token');
+    alert('Збережено. Лічильник спробує підключитися до вказаного gist.');
+
+    // try to trigger immediate ping if available
+    if (window.gistOnlinePing) try { window.gistOnlinePing(); } catch (e) { /* ignore */ }
+  }
+
+  // attach to window for direct calls
+  window.openGistSetup = openSetupPrompt;
+
+  // wire UI button if exists
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest && e.target.closest('#gist-setup');
+    if (!btn) return;
+    e.preventDefault();
+    openSetupPrompt();
+  });
 })();
