@@ -1259,11 +1259,11 @@ function getCardTypeByName(name){
 
 // Icon map by card type (paths relative to project)
 const CARD_TYPE_ICON = {
-  unit: "icons/unit.png",
-  creature: "icons/creature.png",
-  construct: "icons/construct.png",
-  caster: "icons/caster.png",
-  entity: "icons/entity.png"
+  unit: "./icons/unit.png",
+  creature: "./icons/creature.png",
+  construct: "./icons/construct.png",
+  caster: "./icons/caster.png",
+  entity: "./icons/entity.png"
 };
 
 function getCardIcon(card){
@@ -1281,8 +1281,8 @@ function getCardArt(card){
     const idUp = rawId.toUpperCase();
     // direct match (e.g. F01-R1, S01)
     const candidates = [];
-    candidates.push(`assets/cards/${idUp}.png`);
-    candidates.push(`assets/cards/${idUp}.jpg`);
+    candidates.push(`./assets/cards/${idUp}.png`);
+    candidates.push(`./assets/cards/${idUp}.jpg`);
 
     // try padding numeric part for starter ids like S1 -> S01
     const m = idUp.match(/^([A-Z])(\d{1,2})(.*)$/);
@@ -1292,15 +1292,15 @@ function getCardArt(card){
       const rest = m[3] || '';
       const padded = `${prefix}${num}${rest}`;
       if (padded !== idUp) {
-        candidates.push(`assets/cards/${padded}.png`);
-        candidates.push(`assets/cards/${padded}.jpg`);
+        candidates.push(`./assets/cards/${padded}.png`);
+        candidates.push(`./assets/cards/${padded}.jpg`);
       }
     }
 
     // try lowercase variants
     const idLow = rawId.toLowerCase();
-    candidates.push(`assets/cards/${idLow}.png`);
-    candidates.push(`assets/cards/${idLow}.jpg`);
+    candidates.push(`./assets/cards/${idLow}.png`);
+    candidates.push(`./assets/cards/${idLow}.jpg`);
 
     // return first candidate path (we don't check FS here)
     for (const c of candidates) {
@@ -1310,7 +1310,7 @@ function getCardArt(card){
 
   // 3. fallback by type
   const type = getCardTypeByName(card && card.name ? card.name : '');
-  return `assets/cards/types/${type}.png`;
+  return `./assets/cards/types/${type}.png`;
 }
 
 for (let factionNum = 1; factionNum <= 40; factionNum++) {
@@ -1479,7 +1479,7 @@ window.CARDS = ALL_CARDS;
 
 // Повертає шлях до зображення карти (перевага полю `image` в об'єкті карти)
 window.getCardImage = function(cardOrId) {
-  const FALLBACK_IMG = 'assets/collection-placeholder.png';
+  const FALLBACK_IMG = './assets/collection-placeholder.png';
   if (!cardOrId) return FALLBACK_IMG;
 
   let card = null;
@@ -1497,10 +1497,10 @@ window.getCardImage = function(cardOrId) {
 
   // special mapping for a few legacy ids
   const idToImg = {
-    'card_001': 'cards/s01.png',
-    'card_002': 'cards/s02.png',
-    'card_003': 'cards/s03.png',
-    'card_004': 'cards/s04.jpg'
+    'card_001': './assets/cards/s01.png',
+    'card_002': './assets/cards/s02.png',
+    'card_003': './assets/cards/s03.png',
+    'card_004': './assets/cards/s04.jpg'
   };
   if (id && idToImg[id]) return idToImg[id];
 
@@ -1519,12 +1519,12 @@ window.getCardImage = function(cardOrId) {
   if (factionId) {
     const fUp = String(factionId).toUpperCase();
     const fLow = String(factionId).toLowerCase();
-    factionCandidates.push(`assets/factions/${fUp}.png`);
-    factionCandidates.push(`assets/factions/${fUp}.jpg`);
-    factionCandidates.push(`assets/factions/${fLow}.png`);
-    factionCandidates.push(`assets/factions/${fLow}.jpg`);
-    factionCandidates.push(`assets/factions/${factionId}.png`);
-    factionCandidates.push(`assets/factions/${factionId}.jpg`);
+    factionCandidates.push(`./assets/factions/${fUp}.png`);
+    factionCandidates.push(`./assets/factions/${fUp}.jpg`);
+    factionCandidates.push(`./assets/factions/${fLow}.png`);
+    factionCandidates.push(`./assets/factions/${fLow}.jpg`);
+    factionCandidates.push(`./assets/factions/${factionId}.png`);
+    factionCandidates.push(`./assets/factions/${factionId}.jpg`);
   }
 
   if (id) {
@@ -1538,12 +1538,12 @@ window.getCardImage = function(cardOrId) {
     if (preferFaction && factionCandidates.length) {
       candidates.push(...factionCandidates);
     }
-    candidates.push(`assets/cards/${up}.png`);
-    candidates.push(`assets/cards/${up}.jpg`);
-    candidates.push(`assets/cards/${low}.png`);
-    candidates.push(`assets/cards/${low}.jpg`);
-    candidates.push(`assets/cards/${id}.png`);
-    candidates.push(`assets/cards/${id}.jpg`);
+    candidates.push(`./assets/cards/${up}.png`);
+    candidates.push(`./assets/cards/${up}.jpg`);
+    candidates.push(`./assets/cards/${low}.png`);
+    candidates.push(`./assets/cards/${low}.jpg`);
+    candidates.push(`./assets/cards/${id}.png`);
+    candidates.push(`./assets/cards/${id}.jpg`);
 
     // If not preferring faction images, try faction images as a fallback
     if (!preferFaction && factionCandidates.length) {
@@ -1551,10 +1551,10 @@ window.getCardImage = function(cardOrId) {
     }
 
     // Then legacy cards folder (lowercase filenames first)
-    candidates.push(`cards/${low}.png`);
-    candidates.push(`cards/${low}.jpg`);
-    candidates.push(`cards/${id}.png`);
-    candidates.push(`cards/${id}.jpg`);
+    candidates.push(`./cards/${low}.png`);
+    candidates.push(`./cards/${low}.jpg`);
+    candidates.push(`./cards/${id}.png`);
+    candidates.push(`./cards/${id}.jpg`);
 
     // Return first candidate path (we can't check file existence synchronously here).
     // Ordering chosen to match actual files copied into `assets/cards`.
@@ -2333,7 +2333,7 @@ class CardRenderer {
     const showUpgrade = !!opts.showUpgrade;
 
     // картинка арты — используем глобальный helper, fallback на placeholder
-    let imgSrc = 'assets/cards/placeholder.svg';
+    let imgSrc = './assets/cards/placeholder.svg';
     try { imgSrc = (window.getCardImage ? window.getCardImage(cardData) : imgSrc) || imgSrc; } catch(e) {}
     return `
       <div class="sp-card ${element} ${rarity} ${showUpgrade ? 'upgradable' : ''}" 
@@ -2625,7 +2625,7 @@ if (typeof module !== 'undefined' && module.exports) {
 const cardRenderer = new CardRenderer();
 
 // 2. Завантажити базу карт
-fetch('assets/cards-database.json')
+fetch('./assets/cards-database.json')
   .then(response => response.json())
   .then(data => {
     const cards = data.cards;
@@ -4843,7 +4843,7 @@ try {
           wrapper.dataset.cardId = cardId;
           wrapper.innerHTML = window.CardRendererV2 && typeof window.CardRendererV2.render === 'function'
             ? CardRendererV2.render(card, { size: 'normal', showElement: true, showPower: true })
-            : `<img src="${owned ? window.getCardImage(cardId) : 'assets/cards/placeholder.svg'}" alt="${cardId}">`;
+            : `<img src="${owned ? window.getCardImage(cardId) : './assets/cards/placeholder.svg'}" alt="${cardId}">`;
           grid.appendChild(wrapper);
         });
 
@@ -4934,7 +4934,7 @@ try {
           grid.innerHTML = cards.map(card => {
             const found = foundIds.has(card.id);
             if (found) foundCount++;
-            const src = found ? window.getCardImage(card) : 'assets/cards/placeholder.svg';
+            const src = found ? window.getCardImage(card) : './assets/cards/placeholder.svg';
             return `
               <div class="collection-card-item${found ? ' found' : ' not-found'}">
                 <img class="collection-card-img" src="${src}" alt="${card.name}" />
@@ -5399,7 +5399,7 @@ try {
               level: dc.level || 1,
               power: 10,
               attack: 10,
-              image: `assets/cards/${String(dc.cardId || dc.id || 'unknown')}.png`
+              image: `./assets/cards/${String(dc.cardId || dc.id || 'unknown')}.png`
             };
           }
 
