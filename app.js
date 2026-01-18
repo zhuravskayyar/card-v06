@@ -6571,7 +6571,7 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
   const FILE = 'online.json';
   const TOKEN = localStorage.getItem('gh_gist_token') || 'YOUR_GITHUB_TOKEN';
   const TTL_MS = 30000;     // who didn't ping in 30s => offline
-  const PING_EVERY = 12000; // ping every 12s
+  const PING_EVERY = 3000; // ping every 3s
 
   const clientId =
     localStorage.getItem('client_id') || (localStorage.setItem('client_id', crypto.randomUUID()), localStorage.getItem('client_id'));
@@ -6657,33 +6657,28 @@ function animateOriginalFlyHit(attackerEl, defenderEl, damage, onDone){
     try { ping(); } catch (e) { /* ignore */ }
   };
 
-  // Quick console instructions
+  // Quick console instructions (token optional; if present will be used automatically)
   console.info('Gist online counter loaded. To enable real gist-based counter:' +
     '\n1) Create a public or secret gist containing file "online.json" with { "v":1, "users": {} }' +
     '\n2) save gist id in localStorage: localStorage.setItem("gh_gist_id","<GIST_ID>")' +
-    '\n3) save a personal token (Gists: Read/Write) in localStorage: localStorage.setItem("gh_gist_token","<TOKEN>")' +
-    '\nAfter that the counter will attempt to PATCH the gist every ~12s.');
+    '\nOptionally you can store a token (Gists: Read/Write) in localStorage: localStorage.setItem("gh_gist_token","<TOKEN>")' +
+    '\nThe counter will attempt to PATCH the gist automatically every ~3s if configured.');
 })();
 
 // Expose helper to open a quick prompt-based setup from UI
 (function exposeGistHelpers() {
   function openSetupPrompt() {
     const currentGist = localStorage.getItem('gh_gist_id') || '';
-    const currentToken = localStorage.getItem('gh_gist_token') || '';
     const gist = prompt('Введіть Gist ID для online.json (порожньо — відключити):', currentGist);
     if (gist === null) return; // cancelled
     if (gist.trim() === '') {
       localStorage.removeItem('gh_gist_id');
-      localStorage.removeItem('gh_gist_token');
+      // keep token if previously set (optional)
       alert('Gist відключено. Лічильник повернеться до локального режиму.');
       return;
     }
-    const token = prompt('Введіть GitHub token (Gists: Read/Write). Можна залишити порожнім для лише читання:', currentToken);
-    if (token === null) return;
     localStorage.setItem('gh_gist_id', gist.trim());
-    if (token.trim()) localStorage.setItem('gh_gist_token', token.trim());
-    else localStorage.removeItem('gh_gist_token');
-    alert('Збережено. Лічильник спробує підключитися до вказаного gist.');
+    alert('Gist ID збережено. Якщо в localStorage є токен — він буде використаний автоматично.');
 
     // try to trigger immediate ping if available
     if (window.gistOnlinePing) try { window.gistOnlinePing(); } catch (e) { /* ignore */ }
