@@ -59,6 +59,8 @@ const TASKS = [
   }
 ];
 
+
+
 const TASKS_RESET_MS = 12 * 60 * 60 * 1000; // 12 годин
 
 function ensureTasksState(profile) {
@@ -525,48 +527,99 @@ const FACTION_ELEMENTS = {
 };
 
 // Назви фракцій
-const FACTION_NAMES = {
-  "F01": "Орден Попелу",
-  "F02": "Легіон Клинків",
-  "F03": "Культ Іскри",
-  "F04": "Трон Дракона",
-  "F05": "Ковалі Магми",
-  "F06": "Сини Вулкану",
-  "F07": "Клани Жару",
-  "F08": "Братство Сажі",
-  "F09": "Варта Кальдери",
-  "F10": "Пророки Крони",
-  "F11": "Трон Глибин",
-  "F12": "Орден Припливу",
-  "F13": "Відьми Рифів",
-  "F14": "Флот Тиші",
-  "F15": "Хранителі Льоду",
-  "F16": "Народ Дельти",
-  "F17": "Жерці Левіа",
-  "F18": "Перлинний Конклав",
-  "F19": "Клан Хвилі",
-  "F20": "Архів Морів",
-  "F21": "Кочівники Неба",
-  "F22": "Орден Вітру",
-  "F23": "Яструби Грози",
-  "F24": "Ліга Левіти",
-  "F25": "Цех Енджина",
-  "F26": "Сини Урагану",
-  "F27": "Дзвонарі Неба",
-  "F28": "Варта Піків",
-  "F29": "Мандрівці Астру",
-  "F30": "Конклав Сфер",
-  "F31": "Домініони Каменю",
-  "F32": "Орден Коріння",
-  "F33": "Друїди Шталі",
-  "F34": "Клани Щита",
-  "F35": "Хранителі Моноліт",
-  "F36": "Народ Печер",
-  "F37": "Синдикат Обсидіан",
-  "F38": "Сторожі Лісу",
-  "F39": "Архонти Плит",
-  "F40": "Племена Скелі"
+// ================================
+// Steampunk factions: 4 Houses
+// ================================
+const HOUSE_NAMES = {
+  H1: "Дім Печей",
+  H2: "Дім Глибин",
+  H3: "Дім Неба",
+  H4: "Дім Надр"
 };
+
+// 40 фракцій (ID не змінюємо)
+const FACTION_NAMES = {
+  // =========================
+  // H1 — Дім Печей (F01–F10)
+  // =========================
+  "F01": "Орден Латунного Попелу",
+  "F02": "Легіон Клепаних Клинків",
+  "F03": "Культ Електроіскри",
+  "F04": "Трон Парових Печей",
+  "F05": "Цех Магмоковалів",
+  "F06": "Вулканічний Корпус Тиску",
+  "F07": "Клани Котельного Жару",
+  "F08": "Братство Сажових Масок",
+  "F09": "Варта Плавильних Брам",
+  "F10": "Пророки Коронного Полум’я",
+
+  // =========================
+  // H2 — Дім Глибин (F11–F20)
+  // =========================
+  "F11": "Трон Абісальної Глибини",
+  "F12": "Орден Припливних Механіків",
+  "F13": "Рифові Відьми Туману",
+  "F14": "Тихий Флот Доків",
+  "F15": "Крижаний Синод Хранителів",
+  "F16": "Дельтовий Синдикат Каналів",
+  "F17": "Жреці Левіафанового Культу",
+  "F18": "Перлинний Конклав Навігаторів",
+  "F19": "Клан Прибійних Штормів",
+  "F20": "Архів Гідрографів Морів",
+
+  // =========================
+  // H3 — Дім Неба (F21–F30)
+  // =========================
+  "F21": "Каравани Небесних Дирижаблів",
+  "F22": "Орден Вітрових Роторів",
+  "F23": "Яструби Грозових Веж",
+  "F24": "Ліга Левітаційних Платформ",
+  "F25": "Цех Аеродвигунів Енджина",
+  "F26": "Ураганний Легіон Турбін",
+  "F27": "Дзвонарі Небесного Хронометра",
+  "F28": "Варта Пікових Станцій",
+  "F29": "Мандрівці Астронавігації",
+  "F30": "Конклав Атмосферних Сфер",
+
+  // =========================
+  // H4 — Дім Надр (F31–F40)
+  // =========================
+  "F31": "Домініони Кам’яних Шестерень",
+  "F32": "Орден Кореневих Механізмів",
+  "F33": "Друїди Сталевих Рун",
+  "F34": "Клани Бронзового Щита",
+  "F35": "Хранителі Монолітних Пресів",
+  "F36": "Народ Печерних Шахт",
+  "F37": "Синдикат Обсидіанових Контрактів",
+  "F38": "Сторожі Лісових Порталів",
+  "F39": "Архонти Тектонічних Плит",
+  "F40": "Племена Скельних Кар’єрів"
+};
+
+// Мапа: фракція -> дім (для UI/бонусів/логіки)
+const HOUSE_BY_FACTION = {
+  // H1
+  F01:"H1",F02:"H1",F03:"H1",F04:"H1",F05:"H1",F06:"H1",F07:"H1",F08:"H1",F09:"H1",F10:"H1",
+  // H2
+  F11:"H2",F12:"H2",F13:"H2",F14:"H2",F15:"H2",F16:"H2",F17:"H2",F18:"H2",F19:"H2",F20:"H2",
+  // H3
+  F21:"H3",F22:"H3",F23:"H3",F24:"H3",F25:"H3",F26:"H3",F27:"H3",F28:"H3",F29:"H3",F30:"H3",
+  // H4
+  F31:"H4",F32:"H4",F33:"H4",F34:"H4",F35:"H4",F36:"H4",F37:"H4",F38:"H4",F39:"H4",F40:"H4"
+};
+
+function getHouseIdByFaction(factionId){
+  return HOUSE_BY_FACTION[factionId] || null;
+}
+function getHouseNameByFaction(factionId){
+  const hid = getHouseIdByFaction(factionId);
+  return hid ? HOUSE_NAMES[hid] : "";
+}
+
+// expose (optional)
+window.HOUSE_NAMES = HOUSE_NAMES;
+window.HOUSE_BY_FACTION = HOUSE_BY_FACTION;
+window.getHouseNameByFaction = getHouseNameByFaction;
 
 // Колекції фракцій
 // Колекції фракцій
@@ -1056,49 +1109,57 @@ const COLLECTIONS = [
 // Глобальний активний буфер бонусів колекцій
 let ACTIVE_COLLECTION_BONUSES = [];
 
-// Назви карт для кожної фракції
+// ================================
+// CARD NAMES (Berserk-style)
+// 4 Houses × 40 Factions × 6 cards
+// ================================
 const CARD_NAMES = {
-  "F01": ["Попіл Кор", "Жар Пульс", "Фоєр Флюкс", "Клинок Берст", "Драйв Печі", "Штурм Жару"],
-  "F02": ["Сталь Кор", "Шилд Нод", "Берст Ривок", "Бліц Драйв", "Штурм Сталі", "Вехтер Легіону"],
-  "F03": ["Іскра Пульс", "Жар Флюкс", "Фоєр Кор", "Берст Вибух", "Драйв Іскри", "Нуль Жару"],
-  "F04": ["Луска Кор", "Вогонь Пульс", "Берст Крила", "Штурм Луски", "Драйв Трону", "Флюкс Дракона"],
-  "F05": ["Горн Кор", "Магма Пульс", "Шлак Флюкс", "Штурм Горна", "Драйв Сплаву", "Берст Шлаку"],
-  "F06": ["Кратер Кор", "Лава Пульс", "Дим Флюкс", "Штурм Лави", "Драйв Кратера", "Берст Вулкану"],
-  "F07": ["Пірат Кор", "Жар Пульс", "Краш Флюкс", "Штурм Рифу", "Драйв Вітрил", "Берст Хвилі"],
-  "F08": ["Сажа Кор", "Тінь Пульс", "Морок Флюкс", "Штурм Диму", "Драйв Праху", "Нуль Сажі"],
-  "F09": ["Брама Кор", "Жар Пульс", "Лава Флюкс", "Шилд Брами", "Штурм Краю", "Драйв Варти"],
-  "F10": ["Знак Кор", "Оракул Пульс", "Флюкс Слова", "Штурм Знаку", "Драйв Пророцтва", "Нуль Крони"],
-  "F11": ["Безодня Кор", "Приплив Пульс", "Туман Флюкс", "Шилд Глибин", "Драйв Течії", "Штурм Хвилі"],
-  "F12": ["Приплив Кор", "Потік Пульс", "Флюкс Води", "Штурм Піни", "Драйв Хвилі", "Нуль Припливу"],
-  "F13": ["Риф Кор", "Сіль Пульс", "Туман Флюкс", "Штурм Рифу", "Драйв Ракушки", "Морок Рифу"],
-  "F14": ["Тиша Кор", "Потік Пульс", "Флюкс Туману", "Шилд Тиші", "Драйв Флоту", "Нуль Води"],
-  "F15": ["Лід Кор", "Фрост Пульс", "Айс Флюкс", "Шилд Криги", "Драйв Морозу", "Штурм Інею"],
-  "F16": ["Дельта Кор", "Туман Пульс", "Потік Флюкс", "Штурм Болота", "Драйв Стежки", "Шилд Очерету"],
-  "F17": ["Левіа Кор", "Сіль Пульс", "Безодня Флюкс", "Штурм Стихії", "Драйв Храму", "Нуль Безодні"],
-  "F18": ["Перлина Кор", "Диплом Пульс", "Флюкс Угод", "Шилд Перлин", "Драйв Конклаву", "Нуль Суду"],
-  "F19": ["Хвиля Кор", "Грім Пульс", "Флюкс Шторму", "Штурм Прибою", "Драйв Нальоту", "Берст Хвилі"],
-  "F20": ["Архів Кор", "Лист Пульс", "Флюкс Пам’яті", "Шилд Хронік", "Драйв Карт", "Нуль Літопису"],
-  "F21": ["Караван Кор", "Порив Пульс", "Флюкс Неба", "Штурм Степу", "Драйв Шляху", "Шилд Пилу"],
-  "F22": ["Подих Кор", "Порив Пульс", "Флюкс Повітря", "Шилд Подиху", "Драйв Чистоти", "Нуль Пориву"],
-  "F23": ["Крило Кор", "Бліц Пульс", "Сторм Флюкс", "Штурм Крила", "Драйв Неба", "Берст Грому"],
-  "F24": ["Нуль Кор", "Ліфт Пульс", "Флюкс Ваги", "Шилд Сфери", "Драйв Орбіти", "Штурм Зсуву"],
-  "F25": ["Дрон Шилд", "Конструкт Нод", "Автомат Кор", "Атлас", "Омега", "Титан-7"],
-  "F26": ["Ураган Кор", "Вихор Пульс", "Флюкс Бурі", "Штурм Спіралі", "Драйв Урагану", "Берст Вітру"],
-  "F27": ["Дзвін Кор", "Ритм Пульс", "Флюкс Тону", "Штурм Дзвону", "Драйв Хору", "Нуль Ритму"],
-  "F28": ["Пік Кор", "Порив Пульс", "Флюкс Висоти", "Шилд Скелі", "Драйв Кручі", "Штурм Піку"],
-  "F29": ["Астру Кор", "Навіг Пульс", "Флюкс Орбіти", "Шилд Зірок", "Драйв Вітрил", "Нуль Неба"],
-  "F30": ["Сфера Кор", "Тиск Пульс", "Флюкс Атмо", "Шилд Сфери", "Драйв Тиску", "Штурм Сфер"],
-  "F31": ["Граніт Кор", "Плита Пульс", "Флюкс Скелі", "Шилд Базальту", "Драйв Моноліту", "Штурм Уламку"],
-  "F32": ["Корінь Кор", "Лоза Пульс", "Флюкс Соку", "Шилд Гаю", "Драйв Паростку", "Штурм Лози"],
-  "F33": ["Ферум Кор", "Крафт Пульс", "Флюкс Рун", "Шилд Феруму", "Драйв Гаю", "Штурм Металу"],
-  "F34": ["Щит Кор", "Камінь Пульс", "Флюкс Гір", "Штурм Сокири", "Драйв Брами", "Вехтер Клану"],
-  "F35": ["Моноліт Кор", "Руна Пульс", "Флюкс Знаку", "Шилд Плити", "Драйв Моноліту", "Нуль Плити"],
-  "F36": ["Печера Кор", "Пил Пульс", "Флюкс Жили", "Шилд Ходу", "Драйв Нори", "Штурм Ліхтаря"],
-  "F37": ["Обсид Кор", "Контракт Пульс", "Флюкс Боргу", "Шилд Печатки", "Драйв Угод", "Морок Склу"],
-  "F38": ["Предок Кор", "Шепіт Пульс", "Флюкс Листа", "Шилд Гаю", "Драйв Тіні", "Штурм Гілки"],
-  "F39": ["Розлом Кор", "Зсув Пульс", "Флюкс Плит", "Шилд Глибин", "Драйв Тектону", "Штурм Розлому"],
-  "F40": ["Скеля Кор", "Обіт Пульс", "Флюкс Пилу", "Шилд Племен", "Драйв Стежки", "Штурм Каменю"]
+  F01: ["Кіптявий Робітник","Розпечений Каратель","Парова Гарпія","Вогняний Берсерк","Магмовий Голем","Полум’яний Титан"],
+  F02: ["Закіптюжений Вартовий","Латунний Мечник","Пічний Штурмовик","Клепаний Лицар","Коваль Руйнування","Володар Печей"],
+  F03: ["Іскристий Учень","Паровий Підривник","Електро-Мутант","Провідниковий Маг","Ядровий Контролер","Серце Іскри"],
+  F04: ["Котельний Раб","Обпалений Охоронець","Парокрила Гарпія","Вогненний Командир","Дракон Печі","Аватар Горна"],
+  F05: ["Шлаковий Носій","Магмовий Робітник","Коваль Ланцюгів","Сплавний Захисник","Майстер Горна","Титан Магми"],
+  F06: ["Димний Солдат","Паровий Штурмовик","Вулканічний Мисливець","Командир Тиску","Лорд Кратера","Серце Вулкану"],
+  F07: ["Закіптюжений Пірат","Жаровий Нальотник","Паровий Рейдер","Командир Клану","Володар Жару","Аватар Котла"],
+  F08: ["Сажовий Послушник","Димний Асасин","Тіньовий Палій","Маскований Лідер","Морок Печі","Безлика Пожежа"],
+  F09: ["Охоронець Брами","Розпечений Страж","Лавовий Захисник","Командир Воріт","Хранитель Кальдери","Ядро Брами"],
+  F10: ["Послушник Полум’я","Провісник Жару","Пророк Іскри","Голос Печі","Оракул Полум’я","Втілення Крони"],
+
+  F11: ["Слизький Падальник","Туманний Страж","Глибоководний Мутант","Безодній Охоронець","Левіафан Глибин","Серце Абісу"],
+  F12: ["Канальний Робітник","Мокрий Механік","Припливний Оператор","Контролер Насосів","Майстер Шлюзів","Ядро Течії"],
+  F13: ["Рифовий Спостерігач","Солона Відьма","Туманна Сирена","Заклинателька Рифу","Королева Глибин","Морська Погибель"],
+  F14: ["Доковий Вартовий","Мовчазний Матрос","Туманний Капітан","Командир Флоту","Володар Доків","Привид Гавані"],
+  F15: ["Холодний Служка","Крижаний Охоронець","Морозний Адепт","Архівний Синодал","Лорд Льоду","Вічний Мороз"],
+  F16: ["Болотно-канальний Робітник","Слизький Кур’єр","Дельтовий Мутант","Контролер Шлюзів","Володар Каналів","Повінь"],
+  F17: ["Глибокий Послідовник","Кровожадний Жрець","Тіньовий Культист","Голос Левіафана","Пророк Безодні","Аватар Левіафана"],
+  F18: ["Перлинний Сторож","Навігатор Глибин","Морський Дипломат","Старший Конклаву","Володар Перлин","Суд Моря"],
+  F19: ["Мокрий Нальотник","Штормовий Рейдер","Прибійний Мисливець","Ватажок Клану","Володар Хвиль","Шторм"],
+  F20: ["Архівний Учень","Хронікар Морів","Картограф Глибин","Хранитель Знань","Майстер Атласів","Пам’ять Океану"],
+
+  F21: ["Кур’єр Повітря","Летючий Скаут","Дирижабельний Страж","Повітряний Капітан","Володар Караванів","Король Неба"],
+  F22: ["Роторний Учень","Вітряний Механік","Турбінний Боєць","Інженер Потоку","Майстер Вітру","Серце Бурі"],
+  F23: ["Небесний Сторож","Штормовий Яструб","Грозовий Мисливець","Командир Вежі","Володар Грому","Блискавка"],
+  F24: ["Платформний Робітник","Левітуючий Охоронець","Повітряний Маневрер","Координатор Орбіти","Майстер Балансу","Зсув Простору"],
+  F25: ["Аеропортовий Технік","Двигунний Оператор","Аеробойовий Аутомат","Інженер Тяги","Архітектор Полёту","Ядро Двигуна"],
+  F26: ["Вітряний Солдат","Спіральний Боєць","Ураганний Мисливець","Командир Потоку","Володар Турбін","Око Бурі"],
+  F27: ["Дзвінкий Служка","Хронометричний Вартовий","Ритмічний Контролер","Хранитель Часу","Володар Ритму","Зупинка Миті"],
+  F28: ["Станційний Охоронець","Висотний Скаут","Піковий Мисливець","Командир Пункту","Володар Висоти","Небесний Край"],
+  F29: ["Зоряний Кур’єр","Астронавігатор","Орбітальний Спостерігач","Провідник Шляхів","Володар Маршрутів","Карта Неба"],
+  F30: ["Атмосферний Учень","Контролер Тиску","Сферний Оператор","Хранитель Купола","Володар Сфер","Баланс Неба"],
+
+  F31: ["Кам’яний Робітник","Бронзовий Охоронець","Шестерний Боєць","Командир Плит","Володар Каменю","Серце Надр"],
+  F32: ["Кореневий Сторож","Механічний Доглядач","Живий Механізм","Хранитель Сплетіння","Володар Коріння","Древній Мотор"],
+  F33: ["Рунний Учень","Сталевий Заклинач","Механодруїд","Провідник Рун","Володар Символів","Живий Код"],
+  F34: ["Щитовий Носій","Бронзовий Воїн","Захисник Клану","Командир Оборони","Володар Щитів","Непробивний"],
+  F35: ["Пресовий Робітник","Камерний Охоронець","Монолітний Боєць","Контролер Тиску","Володар Пресів","Абсолютна Маса"],
+  F36: ["Шахтний Сторож","Підземний Робітник","Жильний Мутант","Провідник Глибин","Володар Печер","Темрява Надр"],
+  F37: ["Контрактний Виконавець","Обсидіановий Адвокат","Колектор Боргів","Арбітр Угод","Володар Контрактів","Чорна Печатка"],
+  F38: ["Лісовий Охоронець","Механічний Єгер","Кореневий Страж","Хранитель Порталу","Володар Гаю","Живий Ліс"],
+  F39: ["Тектонічний Робітник","Плитний Воїн","Зсувний Боєць","Контролер Розлому","Володар Плит","Розлом"],
+  F40: ["Кар’єрний Робітник","Каменолом","Скельний Захисник","Командир Кар’єру","Володар Скель","Вічна Брила"]
 };
+
+window.CARD_NAMES = CARD_NAMES;
 
 // Множники рідкості
 const RARITY_MULTIPLIERS = {
@@ -1177,6 +1238,81 @@ const ALL_CARDS = [];
 // Елементи по рідкості (фракція може мати різні елементи)
 const ELEMENTS_BY_RARITY = ["fire","water","air","earth","fire","water"];
 
+// Card type detection by name
+function getCardTypeByName(name){
+  const n = (name || '').toLowerCase();
+
+  if (n.includes("гарп") || n.includes("піран") || n.includes("яструб") || n.includes("сирен") || n.includes("сирен"))
+    return "creature";
+
+  if (n.includes("голем") || n.includes("колос") || n.includes("титан") || n.includes("аутомат") || n.includes("автомат"))
+    return "construct";
+
+  if (n.includes("архонт") || n.includes("пророк") || n.includes("оракл") || n.includes("оракул") || n.includes("жрець") || n.includes("пророк"))
+    return "caster";
+
+  if (n.includes("ядро") || n.includes("серце") || n.includes("шторм") || n.includes("розлом") || n.includes("штурм"))
+    return "entity";
+
+  return "unit";
+}
+
+// Icon map by card type (paths relative to project)
+const CARD_TYPE_ICON = {
+  unit: "icons/unit.png",
+  creature: "icons/creature.png",
+  construct: "icons/construct.png",
+  caster: "icons/caster.png",
+  entity: "icons/entity.png"
+};
+
+function getCardIcon(card){
+  const type = getCardTypeByName(card.name || '');
+  return CARD_TYPE_ICON[type] || CARD_TYPE_ICON.unit;
+}
+
+function getCardArt(card){
+  // 1. explicit image
+  if (card && card.image) return card.image;
+
+  // 2. by ID
+  const rawId = card && card.id ? String(card.id) : null;
+  if (rawId) {
+    const idUp = rawId.toUpperCase();
+    // direct match (e.g. F01-R1, S01)
+    const candidates = [];
+    candidates.push(`assets/cards/${idUp}.png`);
+    candidates.push(`assets/cards/${idUp}.jpg`);
+
+    // try padding numeric part for starter ids like S1 -> S01
+    const m = idUp.match(/^([A-Z])(\d{1,2})(.*)$/);
+    if (m) {
+      const prefix = m[1];
+      const num = m[2].padStart(2,'0');
+      const rest = m[3] || '';
+      const padded = `${prefix}${num}${rest}`;
+      if (padded !== idUp) {
+        candidates.push(`assets/cards/${padded}.png`);
+        candidates.push(`assets/cards/${padded}.jpg`);
+      }
+    }
+
+    // try lowercase variants
+    const idLow = rawId.toLowerCase();
+    candidates.push(`assets/cards/${idLow}.png`);
+    candidates.push(`assets/cards/${idLow}.jpg`);
+
+    // return first candidate path (we don't check FS here)
+    for (const c of candidates) {
+      if (c) return c;
+    }
+  }
+
+  // 3. fallback by type
+  const type = getCardTypeByName(card && card.name ? card.name : '');
+  return `assets/cards/types/${type}.png`;
+}
+
 for (let factionNum = 1; factionNum <= 40; factionNum++) {
   const factionId = `F${String(factionNum).padStart(2, '0')}`;
   const factionName = FACTION_NAMES[factionId];
@@ -1188,7 +1324,8 @@ for (let factionNum = 1; factionNum <= 40; factionNum++) {
   for (let rarityNum = 1; rarityNum <= 6; rarityNum++) {
     const rarityId = `R${rarityNum}`;
     const cardId = `${factionId}-${rarityId}`;
-    const element = ELEMENTS_BY_RARITY[rarityNum - 1]; // елемент залежить від рідкості, не від фракції
+    // елемент тепер визначається по фракції; якщо немає мапи — фолбек на рідкість
+    const element = (FACTION_ELEMENTS && FACTION_ELEMENTS[factionId]) ? FACTION_ELEMENTS[factionId] : ELEMENTS_BY_RARITY[rarityNum - 1]; // елемент залежить від фракції
     const rarityData = RARITY_MULTIPLIERS[rarityId];
 
     // Нова база по діапазонах (замість множення rarity multiplier)
@@ -1206,6 +1343,10 @@ for (let factionNum = 1; factionNum <= 40; factionNum++) {
       6: 1.05  // mythic - повільне зростання, але висока база
     }[rarityNum];
     
+    const name = (CARD_NAMES[factionId] && CARD_NAMES[factionId][rarityNum - 1]) || (cardNames && cardNames[rarityNum - 1]) || `Card ${cardId}`;
+    const icon = getCardIcon({ name });
+    const image = getCardArt({ id: cardId, name });
+
     ALL_CARDS.push({
       id: cardId,
       element: element,
@@ -1221,29 +1362,31 @@ for (let factionNum = 1; factionNum <= 40; factionNum++) {
       upgradeMult: upgradeMult,
       attack: finalPower,
       defense: Math.round(finalPower * 0.8),
-      name: cardNames[rarityNum - 1]
+      name: name,
+      icon: icon,
+      image: image
     });
   }
 }
 
 // Стартовий набір карт (16 шт), усі мають силу 12
 const STARTER_CARDS = [
-  { id: 'S01', name: 'Іскра Рекрут', element: 'fire',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S02', name: 'Жар Рекрут', element: 'fire',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S03', name: 'Піч Сторож', element: 'fire',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S04', name: 'Горн Кочегар', element: 'fire',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S05', name: 'Туман Матрос', element: 'water', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S06', name: 'Клапан Регулятор', element: 'water', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S07', name: 'Канал Навіг', element: 'water', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S08', name: 'Резерв Сторож', element: 'water', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S09', name: 'Вітер Кур’єр', element: 'air',   faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S10', name: 'Аеро Механік', element: 'air',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S11', name: 'Щогла Сигнал', element: 'air',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S12', name: 'Турбіна Нагляд', element: 'air',  faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S13', name: 'Док Робітник', element: 'earth', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S14', name: 'Ліфт Оператор', element: 'earth', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S15', name: 'Шахта Варта', element: 'earth', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 },
-  { id: 'S16', name: 'Осад Технік', element: 'earth', faction: 'S', factionName: 'Стартовий Набір', rarity: 'common', rarityDisplay: 'Звичайна', basePower: 12, multiplier: 1.0, upgradeMult: 1.0, attack: 12, defense: 0 }
+  { id:'S01', name:'Іскристий Новобранець', element:'fire',  faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S02', name:'Жаровий Боєць',        element:'fire',  faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S03', name:'Пічний Вартовий',      element:'fire',  faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S04', name:'Кочегар Горна',         element:'fire',  faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S05', name:'Туманний Матрос',       element:'water', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S06', name:'Гідравлічний Сторож',   element:'water', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S07', name:'Канальний Провідник',   element:'water', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S08', name:'Резервний Охоронець',   element:'water', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S09', name:'Вітряний Кур’єр',       element:'air',   faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S10', name:'Аеротехнік',             element:'air',   faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S11', name:'Сигнальний Спостерігач',element:'air',   faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S12', name:'Турбінний Вартовий',    element:'air',   faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S13', name:'Доковий Робітник',      element:'earth', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S14', name:'Підйомний Сторож',      element:'earth', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S15', name:'Шахтний Вартовий',      element:'earth', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 },
+  { id:'S16', name:'Осадний Технік',        element:'earth', faction:'S', factionName:'Стартовий Набір', rarity:'common', rarityDisplay:'Звичайна', basePower:12, multiplier:1.0, upgradeMult:1.0, attack:12, defense:0 }
 ];
 
 ALL_CARDS.push(...STARTER_CARDS);
@@ -1361,17 +1504,52 @@ window.getCardImage = function(cardOrId) {
   };
   if (id && idToImg[id]) return idToImg[id];
 
+  // Determine faction id (if available) to allow faction-wide images
+  let factionId = null;
+  try {
+    if (card && card.faction) factionId = card.faction;
+    // if id looks like "F01-R1" or "F01-R2" use prefix
+    if (!factionId && id && typeof id === 'string' && id.indexOf('-') !== -1) {
+      factionId = id.split('-')[0];
+    }
+  } catch (e) { factionId = null; }
+
+  // Build faction image candidates (assets/factions)
+  const factionCandidates = [];
+  if (factionId) {
+    const fUp = String(factionId).toUpperCase();
+    const fLow = String(factionId).toLowerCase();
+    factionCandidates.push(`assets/factions/${fUp}.png`);
+    factionCandidates.push(`assets/factions/${fUp}.jpg`);
+    factionCandidates.push(`assets/factions/${fLow}.png`);
+    factionCandidates.push(`assets/factions/${fLow}.jpg`);
+    factionCandidates.push(`assets/factions/${factionId}.png`);
+    factionCandidates.push(`assets/factions/${factionId}.jpg`);
+  }
+
   if (id) {
     const up = String(id).toUpperCase();
     const low = String(id).toLowerCase();
     const candidates = [];
     // Prefer assets folder with uppercase names (we copied files there)
+    // If desired, enable window.PREFER_FACTION_IMAGES = true to use faction images
+    // before per-card images.
+    const preferFaction = !!window.PREFER_FACTION_IMAGES;
+    if (preferFaction && factionCandidates.length) {
+      candidates.push(...factionCandidates);
+    }
     candidates.push(`assets/cards/${up}.png`);
     candidates.push(`assets/cards/${up}.jpg`);
     candidates.push(`assets/cards/${low}.png`);
     candidates.push(`assets/cards/${low}.jpg`);
     candidates.push(`assets/cards/${id}.png`);
     candidates.push(`assets/cards/${id}.jpg`);
+
+    // If not preferring faction images, try faction images as a fallback
+    if (!preferFaction && factionCandidates.length) {
+      candidates.push(...factionCandidates);
+    }
+
     // Then legacy cards folder (lowercase filenames first)
     candidates.push(`cards/${low}.png`);
     candidates.push(`cards/${low}.jpg`);
@@ -4658,7 +4836,8 @@ try {
         grid.innerHTML = "";
         col.cards.forEach(cardId => {
           const owned = inventory[cardId] > 0;
-          const card = owned && window.getCardById ? window.getCardById(cardId) : { id: cardId };
+          // Always try to resolve full card data from DB; fallback to minimal object
+          const card = (window.getCardById && window.getCardById(cardId)) || { id: cardId };
           const wrapper = document.createElement("div");
           wrapper.className = "card-wrapper" + (owned ? "" : " locked");
           wrapper.dataset.cardId = cardId;
@@ -4668,10 +4847,10 @@ try {
           grid.appendChild(wrapper);
         });
 
-        // Делегований клік по .card-wrapper
+        // Делегований клік по .card-wrapper — дозволяємо відкривати деталі навіть для незнайдених/locked карт
         grid.onclick = (e) => {
           const cardEl = e.target.closest('.card-wrapper');
-          if (!cardEl || cardEl.classList.contains('locked')) return;
+          if (!cardEl) return;
           const cardId = cardEl.dataset.cardId;
           if (!cardId) return;
           if (typeof this.showCardDetails === 'function') {
